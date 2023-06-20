@@ -38,7 +38,8 @@ class Ui_MainWindow(object):
         self.settings_button = QtWidgets.QPushButton(self.centralwidget)
         self.settings_button.setObjectName("settings_button")
         self.verticalLayout_2.addWidget(self.settings_button)
-        self.verticalLayout_2.addSpacerItem(QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        self.verticalLayout_2.addSpacerItem(
+            QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
         self.horizontalLayout.addLayout(self.verticalLayout_2)
 
         # Data section
@@ -51,6 +52,7 @@ class Ui_MainWindow(object):
         self.Check_all_box.setObjectName("Check_all_box")
         self.verticalLayout_3.addWidget(self.Check_all_box)
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+        self.Check_all_box.stateChanged.connect(self.checkAll)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
@@ -116,32 +118,38 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.settings_button, self.graph_button)
         MainWindow.setTabOrder(self.graph_button, self.types_button)
 
-
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Cell Profiler"))
-        self.modules_label.setText(_translate("MainWindow", "Modules"))
-        self.types_button.setText(_translate("MainWindow", "Names / Types"))
-        self.graph_button.setText(_translate("MainWindow", "Graph"))
-        self.settings_button.setText(_translate("MainWindow", "Settings"))
-        self.file_loaded_label.setText(_translate("MainWindow", "No File Loaded"))
-        self.Check_all_box.setText(_translate("MainWindow", "Check All"))
-        self.checkBox_2.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_4.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_3.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_6.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_5.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_7.setText(_translate("MainWindow", "CheckBox"))
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
-        self.menuView.setTitle(_translate("MainWindow", "View"))
-        self.actionLoad_CSV.setText(_translate("MainWindow", "Load CSV"))
-        self.actionExit.setText(_translate("MainWindow", "Exit"))
+        translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(translate("MainWindow", "Cell Profiler"))
+        self.modules_label.setText(translate("MainWindow", "Modules"))
+        self.types_button.setText(translate("MainWindow", "Names / Types"))
+        self.graph_button.setText(translate("MainWindow", "Graph"))
+        self.settings_button.setText(translate("MainWindow", "Settings"))
+        self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
+        self.Check_all_box.setText(translate("MainWindow", "Check All"))
+        checkboxes = [self.checkBox, self.checkBox_2, self.checkBox_3, self.checkBox_4, self.checkBox_5,
+                      self.checkBox_6, self.checkBox_7]
+        checkbox_texts = ["CheckBox"] * len(checkboxes)
+        for checkbox, text in zip(checkboxes, checkbox_texts):
+            checkbox.setText(translate("MainWindow", text))
+        self.menuFile.setTitle(translate("MainWindow", "File"))
+        self.menuEdit.setTitle(translate("MainWindow", "Edit"))
+        self.menuView.setTitle(translate("MainWindow", "View"))
+        self.actionLoad_CSV.setText(translate("MainWindow", "Load CSV"))
+        self.actionExit.setText(translate("MainWindow", "Exit"))
+
+    def checkAll(self, state):
+        # Check or uncheck all checkboxes based on the state of the "Check All" checkbox
+        checkboxes = [self.checkBox, self.checkBox_2, self.checkBox_3, self.checkBox_4, self.checkBox_5,
+                      self.checkBox_6, self.checkBox_7]
+        for checkbox in checkboxes:
+            checkbox.setChecked(state == QtCore.Qt.Checked)
 
 
 if __name__ == "__main__":
     import sys
+    from PyQt5 import QtWidgets
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
