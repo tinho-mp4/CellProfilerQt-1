@@ -2,7 +2,7 @@
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
 # Created: June 20, 2023 (Today's Date)
-# Last Modified: June 20, 2023 (Anush Varma - Initial commit)
+# Last Modified: June 20, 2023 (Juned Miah - Adding Dask + edit menu for normalization and pre-processing)
 
 import os
 
@@ -12,6 +12,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import csv_handler
 
 
+# noinspection PyUnresolvedReferences
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Cell Profiler")
@@ -78,13 +79,17 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 760, 21))
         self.menubar.setObjectName("menubar")
+
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+
         self.menuEdit = QtWidgets.QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
+
         self.menuView = QtWidgets.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
         MainWindow.setMenuBar(self.menubar)
+
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -93,12 +98,25 @@ class Ui_MainWindow(object):
         self.actionLoad_CSV.setObjectName("actionLoad_CSV")
         self.actionLoad_CSV.setText("Load CSV")
         self.actionLoad_CSV.triggered.connect(self.loadCSV)
+        self.menuFile.addAction(self.actionLoad_CSV)
+
+        self.actionNormalizeData = QtWidgets.QAction(MainWindow)
+        self.actionNormalizeData.setObjectName("actionNormalizeData")
+        self.actionNormalizeData.setText("Normalize Data")
+        self.actionNormalizeData.triggered.connect(self.normalizeData)
+        self.menuEdit.addAction(self.actionNormalizeData)
+
+        self.actionRemoveNA = QtWidgets.QAction(MainWindow)
+        self.actionRemoveNA.setObjectName("actionRemoveNA")
+        self.actionRemoveNA.setText("Remove N/A entries")
+        self.actionRemoveNA.triggered.connect(self.removeNA)
+        self.menuEdit.addAction(self.actionRemoveNA)
 
         self.actionExit = QtWidgets.QAction(MainWindow)
         self.actionExit.setObjectName("actionExit")
-        self.menuFile.addAction(self.actionLoad_CSV)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
+
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
@@ -163,6 +181,7 @@ class Ui_MainWindow(object):
         elif item.isCheckable() and (item.checkState() == QtCore.Qt.Unchecked):
             for index in range(self.model.rowCount()):
                 self.model.item(index, item.column()).setEnabled(True)
+
     def retranslateUi(self, MainWindow):
         translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(translate("MainWindow", "Cell Profiler"))
@@ -182,6 +201,24 @@ class Ui_MainWindow(object):
         # Check or uncheck all checkboxes based on the state of the "Check All" checkbox
         for checkbox in self.checkboxes:
             checkbox.setChecked(state == QtCore.Qt.Checked)
+
+    def normalizeData(self):
+        try:
+            self.data = (self.data - self.data.min()) / (self.data.max() - self.data.min())
+            self.display_data(self.data)
+            self.create_checkboxes(self.data.columns)
+            print("Data normalized successfully.")
+        except Exception as e:
+            print(f"Error while normalizing data: {e}")
+
+    def removeNA(self):
+        try:
+            self.data.dropna(inplace=True)
+            self.display_data(self.data)
+            self.create_checkboxes(self.data.columns)
+            print("N/A entries removed successfully.")
+        except Exception as e:
+            print(f"Error while removing N/A entries: {e}")
 
 
 if __name__ == "__main__":
