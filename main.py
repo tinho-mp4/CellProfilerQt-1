@@ -7,6 +7,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import csv_handler
+import os
 
 
 class Ui_MainWindow(object):
@@ -128,7 +129,7 @@ class Ui_MainWindow(object):
     def loadCSV(self):
         filename = csv_handler.browse_file()
         if filename:
-            self.file_loaded_label.setText(f"File Loaded: {filename}")
+            self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
             self.data = csv_handler.load_csv_file(filename)
             if self.data is not None:
                 self.display_data(self.data)
@@ -146,11 +147,10 @@ class Ui_MainWindow(object):
                     item.setCheckable(True)
                     self.model.setHorizontalHeaderItem(data.columns.get_loc(column), item)
 
-                for row in data.itertuples():
-                    items = [QStandardItem(str(getattr(row, column))) for column in data.columns]
-                    self.model.appendRow(items)
-
-                self.model.itemChanged.connect(self.handleItemChanged)
+                for i in range(data.shape[0]):
+                    for j in range(data.shape[1]):
+                        item = QStandardItem(str(data.iat[i, j]))
+                        self.model.setItem(i, j, item)
 
         except Exception as e:
             print(f"Error: {e}")
