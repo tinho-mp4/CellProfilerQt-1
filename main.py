@@ -5,6 +5,7 @@
 # Last Modified: June 20, 2023 (Anush Varma - Initial commit)
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QStackedWidget, QWidget
 
 
 # File: Main.py | Cell Profiler: User-friendly software for .csv data analysis, manipulation, and visualization.
@@ -20,9 +21,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
 
         # Horizontal layout
-        self.right_side_layout = QtWidgets.QHBoxLayout()
-        self.right_side_layout.setObjectName("horizontalLayout")
-        self.verticalLayout.addLayout(self.right_side_layout)
+        self.split_left_right_layout = QtWidgets.QHBoxLayout()
+        self.split_left_right_layout.setObjectName("horizontalLayout")
+        self.verticalLayout.addLayout(self.split_left_right_layout)
 
         # Modules section
         self.left_side_vertical_layout = QtWidgets.QVBoxLayout()
@@ -41,18 +42,34 @@ class Ui_MainWindow(object):
         self.left_side_vertical_layout.addWidget(self.settings_button)
         self.left_side_vertical_layout.addSpacerItem(
             QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
-        self.right_side_layout.addLayout(self.left_side_vertical_layout)
+        self.split_left_right_layout.addLayout(self.left_side_vertical_layout)
 
         # Data section
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+
+        self.images_page = QtGui.QPageLayout
+
+        self.right_side_vertical = QtWidgets.QVBoxLayout()
+        self.right_side_vertical.setObjectName("verticalLayout_3")
         self.file_loaded_label = QtWidgets.QLabel(self.centralwidget)
         self.file_loaded_label.setObjectName("file_loaded_label")
-        self.verticalLayout_3.addWidget(self.file_loaded_label)
-        self.Check_all_box = QtWidgets.QCheckBox(self.centralwidget)
+
+
+        self.right_side_vertical.addWidget(self.file_loaded_label)
+
+
+        # pages to change modules
+        self.stackedWidget = QStackedWidget(self.centralwidget)
+        self.stackedWidget.setObjectName("stackedWidgetPages")
+        self.stackedWidget.setEnabled(True)
+        self.names_types_page = QWidget()
+        self.names_types_page.setObjectName("Images_page")
+
+        self.Check_all_box = QtWidgets.QCheckBox(self.names_types_page)
         self.Check_all_box.setObjectName("Check_all_box")
-        self.verticalLayout_3.addWidget(self.Check_all_box)
-        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+        self.right_side_vertical.addWidget(self.Check_all_box)
+
+        # Scrollable area
+        self.scrollArea = QtWidgets.QScrollArea(self.names_types_page)
         self.Check_all_box.stateChanged.connect(self.checkAll)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
@@ -60,6 +77,8 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setObjectName("gridLayout")
+
+        # check boxes
         self.checkBox_2 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
         self.checkBox_2.setObjectName("checkBox_2")
         self.gridLayout.addWidget(self.checkBox_2, 2, 0, 1, 1)
@@ -82,11 +101,11 @@ class Ui_MainWindow(object):
         self.checkBox_7.setObjectName("checkBox_7")
         self.gridLayout.addWidget(self.checkBox_7, 1, 0, 1, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout_3.addWidget(self.scrollArea)
+        self.right_side_vertical.addWidget(self.scrollArea)
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
-        self.verticalLayout_3.addWidget(self.tableView)
-        self.right_side_layout.addLayout(self.verticalLayout_3)
+        self.right_side_vertical.addWidget(self.tableView)
+        self.split_left_right_layout.addLayout(self.right_side_vertical)
 
         # Menu and status bar
         MainWindow.setCentralWidget(self.centralwidget)
