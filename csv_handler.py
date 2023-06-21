@@ -1,4 +1,3 @@
-import pandas as pd
 from PyQt5.QtWidgets import QFileDialog
 import dask.dataframe as dd
 
@@ -17,3 +16,14 @@ def load_csv_file(filename):
         except Exception as e:
             print(f"Error: {e}")
     return None
+
+
+def export_csv_file(filename, data):
+    try:
+        if filename:
+            data.to_csv(filename, index=False)
+            print("File has been exported")
+        else:
+            print("No file selected.")
+    except Exception as e:
+        print(f"Error while exporting CSV: {str(e)}")
