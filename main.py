@@ -15,32 +15,33 @@ class Ui_MainWindow(object):
         MainWindow.resize(760, 410)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
 
         # Horizontal layout
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.right_side_layout = QtWidgets.QHBoxLayout()
+        self.right_side_layout.setObjectName("horizontalLayout")
+        self.verticalLayout.addLayout(self.right_side_layout)
 
         # Modules section
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.left_side_vertical_layout = QtWidgets.QVBoxLayout()
+        self.left_side_vertical_layout.setObjectName("verticalLayout_2")
         self.modules_label = QtWidgets.QLabel(self.centralwidget)
         self.modules_label.setObjectName("modules_label")
-        self.verticalLayout_2.addWidget(self.modules_label)
+        self.left_side_vertical_layout.addWidget(self.modules_label)
         self.types_button = QtWidgets.QPushButton(self.centralwidget)
         self.types_button.setObjectName("types_button")
-        self.verticalLayout_2.addWidget(self.types_button)
+        self.left_side_vertical_layout.addWidget(self.types_button)
         self.graph_button = QtWidgets.QPushButton(self.centralwidget)
         self.graph_button.setObjectName("graph_button")
-        self.verticalLayout_2.addWidget(self.graph_button)
+        self.left_side_vertical_layout.addWidget(self.graph_button)
         self.settings_button = QtWidgets.QPushButton(self.centralwidget)
         self.settings_button.setObjectName("settings_button")
-        self.verticalLayout_2.addWidget(self.settings_button)
-        self.verticalLayout_2.addSpacerItem(
+        self.left_side_vertical_layout.addWidget(self.settings_button)
+        self.left_side_vertical_layout.addSpacerItem(
             QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
-        self.horizontalLayout.addLayout(self.verticalLayout_2)
+        self.right_side_layout.addLayout(self.left_side_vertical_layout)
 
         # Data section
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
@@ -85,7 +86,7 @@ class Ui_MainWindow(object):
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_3.addWidget(self.tableView)
-        self.horizontalLayout.addLayout(self.verticalLayout_3)
+        self.right_side_layout.addLayout(self.verticalLayout_3)
 
         # Menu and status bar
         MainWindow.setCentralWidget(self.centralwidget)
