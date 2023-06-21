@@ -5,9 +5,9 @@
 # Last Modified: June 20, 2023 (Anush Varma - Initial commit)
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+import csv_handler
 
-
-# File: Main.py | Cell Profiler: User-friendly software for .csv data analysis, manipulation, and visualization.
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -85,7 +85,10 @@ class Ui_MainWindow(object):
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_3.addWidget(self.tableView)
+        self.model = QStandardItemModel(self.tableView)
+        self.tableView.setModel(self.model)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
+
 
         # Menu and status bar
         MainWindow.setCentralWidget(self.centralwidget)
@@ -102,8 +105,12 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
         self.actionLoad_CSV = QtWidgets.QAction(MainWindow)
         self.actionLoad_CSV.setObjectName("actionLoad_CSV")
+        self.actionLoad_CSV.setText("Load CSV")
+        self.actionLoad_CSV.triggered.connect(self.loadCSV)
+
         self.actionExit = QtWidgets.QAction(MainWindow)
         self.actionExit.setObjectName("actionExit")
         self.menuFile.addAction(self.actionLoad_CSV)
@@ -118,6 +125,43 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.settings_button, self.graph_button)
         MainWindow.setTabOrder(self.graph_button, self.types_button)
 
+    def loadCSV(self):
+        filename = csv_handler.browse_file()
+        if filename:
+            self.file_loaded_label.setText(f"File Loaded: {filename}")
+            self.data = csv_handler.load_csv_file(filename)
+            if self.data is not None:
+                self.display_data(self.data)
+            else:
+                print("No data in the file.")
+        else:
+            print("No file selected.")
+
+    def display_data(self, data):
+        try:
+            if data is not None:
+                self.model.clear()
+                for column in data.columns:
+                    item = QStandardItem(column)
+                    item.setCheckable(True)
+                    self.model.setHorizontalHeaderItem(data.columns.get_loc(column), item)
+
+                for row in data.itertuples():
+                    items = [QStandardItem(str(getattr(row, column))) for column in data.columns]
+                    self.model.appendRow(items)
+
+                self.model.itemChanged.connect(self.handleItemChanged)
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def handleItemChanged(self, item):
+        if item.isCheckable() and (item.checkState() == QtCore.Qt.Checked):
+            for index in range(self.model.rowCount()):
+                self.model.item(index, item.column()).setEnabled(False)
+        elif item.isCheckable() and (item.checkState() == QtCore.Qt.Unchecked):
+            for index in range(self.model.rowCount()):
+                self.model.item(index, item.column()).setEnabled(True)
     def retranslateUi(self, MainWindow):
         translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(translate("MainWindow", "Cell Profiler"))
