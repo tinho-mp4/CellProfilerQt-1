@@ -53,45 +53,25 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.file_loaded_label)
         self.Check_all_box = QtWidgets.QCheckBox(self.centralwidget)
         self.Check_all_box.setObjectName("Check_all_box")
+        self.Check_all_box.stateChanged.connect(self.checkAll)
         self.verticalLayout_3.addWidget(self.Check_all_box)
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.Check_all_box.stateChanged.connect(self.checkAll)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setObjectName("gridLayout")
-        self.checkBox_2 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.gridLayout.addWidget(self.checkBox_2, 2, 0, 1, 1)
-        self.checkBox_4 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_4.setObjectName("checkBox_4")
-        self.gridLayout.addWidget(self.checkBox_4, 5, 0, 1, 1)
-        self.checkBox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox.setObjectName("checkBox")
-        self.gridLayout.addWidget(self.checkBox, 0, 0, 1, 2)
-        self.checkBox_3 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_3.setObjectName("checkBox_3")
-        self.gridLayout.addWidget(self.checkBox_3, 6, 0, 1, 1)
-        self.checkBox_6 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_6.setObjectName("checkBox_6")
-        self.gridLayout.addWidget(self.checkBox_6, 3, 0, 1, 1)
-        self.checkBox_5 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_5.setObjectName("checkBox_5")
-        self.gridLayout.addWidget(self.checkBox_5, 4, 0, 1, 1)
-        self.checkBox_7 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_7.setObjectName("checkBox_7")
-        self.gridLayout.addWidget(self.checkBox_7, 1, 0, 1, 1)
+
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_3.addWidget(self.scrollArea)
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_3.addWidget(self.tableView)
-        self.model = QStandardItemModel(self.tableView)
-        self.tableView.setModel(self.model)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
 
+        self.model = QStandardItemModel(self.tableView)
+        self.tableView.setModel(self.model)
 
         # Menu and status bar
         MainWindow.setCentralWidget(self.centralwidget)
@@ -135,10 +115,29 @@ class Ui_MainWindow(object):
             self.data = csv_handler.load_csv_file(filename)
             if self.data is not None:
                 self.display_data(self.data)
+                self.create_checkboxes(self.data.columns)
+                self.Check_all_box.setChecked(True)
             else:
                 print("No data in the file.")
         else:
             print("No file selected.")
+
+    def create_checkboxes(self, columns):
+        self.checkboxes = []
+        for i in range(self.gridLayout.count()):
+            widget = self.gridLayout.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        for i, column in enumerate(columns):
+            checkbox = QtWidgets.QCheckBox(column, self.scrollAreaWidgetContents)
+            checkbox.setChecked(True)
+            checkbox.stateChanged.connect(lambda state, x=i: self.toggle_column(x, state))
+            self.gridLayout.addWidget(checkbox, i, 0, 1, 1)
+            self.checkboxes.append(checkbox)
+
+    def toggle_column(self, column, state):
+        self.tableView.setColumnHidden(column, not bool(state))
 
     def display_data(self, data):
         try:
@@ -173,11 +172,6 @@ class Ui_MainWindow(object):
         self.settings_button.setText(translate("MainWindow", "Settings"))
         self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
         self.Check_all_box.setText(translate("MainWindow", "Check All"))
-        checkboxes = [self.checkBox, self.checkBox_2, self.checkBox_3, self.checkBox_4, self.checkBox_5,
-                      self.checkBox_6, self.checkBox_7]
-        checkbox_texts = ["CheckBox"] * len(checkboxes)
-        for checkbox, text in zip(checkboxes, checkbox_texts):
-            checkbox.setText(translate("MainWindow", text))
         self.menuFile.setTitle(translate("MainWindow", "File"))
         self.menuEdit.setTitle(translate("MainWindow", "Edit"))
         self.menuView.setTitle(translate("MainWindow", "View"))
@@ -186,9 +180,7 @@ class Ui_MainWindow(object):
 
     def checkAll(self, state):
         # Check or uncheck all checkboxes based on the state of the "Check All" checkbox
-        checkboxes = [self.checkBox, self.checkBox_2, self.checkBox_3, self.checkBox_4, self.checkBox_5,
-                      self.checkBox_6, self.checkBox_7]
-        for checkbox in checkboxes:
+        for checkbox in self.checkboxes:
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
 
