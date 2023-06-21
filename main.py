@@ -4,10 +4,12 @@
 # Created: June 20, 2023 (Today's Date)
 # Last Modified: June 20, 2023 (Anush Varma - Initial commit)
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-import csv_handler
 import os
+
+from PyQt5 import QtCore
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+
+import csv_handler
 
 
 class Ui_MainWindow(object):
