@@ -8,6 +8,8 @@ import os
 
 from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QFileDialog
+
 
 import csv_handler
 
@@ -99,6 +101,12 @@ class Ui_MainWindow(object):
         self.actionLoad_CSV.setText("Load CSV")
         self.actionLoad_CSV.triggered.connect(self.loadCSV)
         self.menuFile.addAction(self.actionLoad_CSV)
+
+        self.actionExport_CSV = QtWidgets.QAction(MainWindow)
+        self.actionExport_CSV.setObjectName("actionExport_CSV")
+        self.actionExport_CSV.setText("Export CSV")
+        self.actionExport_CSV.triggered.connect(self.exportCSV)
+        self.menuFile.addAction(self.actionExport_CSV)
 
         self.actionNormalizeData = QtWidgets.QAction(MainWindow)
         self.actionNormalizeData.setObjectName("actionNormalizeData")
@@ -213,12 +221,21 @@ class Ui_MainWindow(object):
 
     def removeNA(self):
         try:
-            self.data.dropna(inplace=True)
+            self.data = self.data.dropna()  # Remove rows with missing values
             self.display_data(self.data)
-            self.create_checkboxes(self.data.columns)
             print("N/A entries removed successfully.")
         except Exception as e:
             print(f"Error while removing N/A entries: {e}")
+
+    def exportCSV(self):
+        try:
+            filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
+            if filename:
+                csv_handler.export_csv_file(filename, self.data)
+            else:
+                print("No file selected.")
+        except Exception as e:
+            print(f"Error: {str(e)}")
 
 
 if __name__ == "__main__":
