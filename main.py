@@ -88,6 +88,7 @@ class Ui_MainWindow(object):
         self.searchbar.setObjectName("searchbar")
         self.check_all_horizontal_layout.addWidget(self.searchbar)
         self.gridLayout_3.addLayout(self.check_all_horizontal_layout, 1, 0, 1, 1)
+        self.searchbar.textChanged.connect(self.handle_search)
         self.searchbar.setEnabled(False)
 
         # checkboxes scroll area setup
@@ -185,6 +186,7 @@ class Ui_MainWindow(object):
         else:
             print("No file selected.")
 
+
     def create_checkboxes(self, columns):
         self.checkboxes = []
         for i in range(self.gridLayout.count()):
@@ -218,6 +220,16 @@ class Ui_MainWindow(object):
 
         except Exception as e:
             print(f"Error: {e}")
+
+
+
+
+    def handle_search(self, text):
+        for checkbox in self.checkboxes:
+            if text.lower() in checkbox.text().lower():
+                checkbox.setVisible(True)
+            else:
+                checkbox.setVisible(False)
 
     def handleItemChanged(self, item):
         if item.isCheckable() and (item.checkState() == QtCore.Qt.Checked):
