@@ -12,9 +12,11 @@ from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 
 import csv_handler
+from NamesTypesWindow import NameTypeWindow
+from GraphWindow import GraphWindow
+from SettingsWindow import SettingsWindow
 
 
-# noinspection PyUnresolvedReferences
 class Ui_MainWindow(object):
 
     def __init__(self):
@@ -337,11 +339,11 @@ class Ui_MainWindow(object):
             print(f"Error: {str(e)}")
 
     def on_name_types_clicked(self):
-        self.names_types_window = NamesTypesWindow()
+        self.names_types_window = NameTypeWindow()
         self.names_types_window.show()
 
     def on_graph_clicked(self):
-        self.graph_window = GraphWindow(self.centralwidget)
+        self.graph_window = GraphWindow()
         self.graph_window.show()
 
     def on_settings_clicked(self):
