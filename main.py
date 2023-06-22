@@ -24,6 +24,10 @@ class Ui_MainWindow(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
 
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+
+
         # Horizontal layout
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -48,30 +52,59 @@ class Ui_MainWindow(object):
             QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
         self.horizontalLayout.addLayout(self.verticalLayout_2)
 
+
+
+
+
         # Data section
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.right_side_vertical_layout = QtWidgets.QVBoxLayout()
+        self.right_side_vertical_layout.setObjectName("right_side_vertical_layout")
         self.file_loaded_label = QtWidgets.QLabel(self.centralwidget)
         self.file_loaded_label.setObjectName("file_loaded_label")
-        self.verticalLayout_3.addWidget(self.file_loaded_label)
-        self.Check_all_box = QtWidgets.QCheckBox(self.centralwidget)
+        self.right_side_vertical_layout.addWidget(self.file_loaded_label, 0, QtCore.Qt.AlignTop)
+
+        self.stacked_pages = QtWidgets.QStackedWidget(self.centralwidget)
+        self.stacked_pages.setEnabled(True)
+        self.stacked_pages.setObjectName("stacked_pages")
+
+        self.names_types_page = QtWidgets.QWidget()
+        self.names_types_page.setObjectName("names_types_page")
+
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.names_types_page)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+
+        self.check_all_horizontal_layout = QtWidgets.QHBoxLayout()
+        self.check_all_horizontal_layout.setObjectName("check_all_horizontal_layout")
+
+        self.Check_all_box = QtWidgets.QCheckBox(self.names_types_page)
         self.Check_all_box.setObjectName("Check_all_box")
         self.Check_all_box.stateChanged.connect(self.checkAll)
-        self.verticalLayout_3.addWidget(self.Check_all_box)
-        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+        self.check_all_horizontal_layout.addWidget(self.Check_all_box)
+
+        self.searchbar = QtWidgets.QLineEdit(self.names_types_page)
+        self.searchbar.setObjectName("searchbar")
+        self.check_all_horizontal_layout.addWidget(self.searchbar)
+        self.gridLayout_3.addLayout(self.check_all_horizontal_layout, 1, 0, 1, 1)
+
+        self.scrollArea = QtWidgets.QScrollArea(self.names_types_page)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 599, 120))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setObjectName("gridLayout")
-
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout_3.addWidget(self.scrollArea)
+        self.gridLayout_3.addWidget(self.scrollArea, 3, 0, 1, 1)
+        self.stacked_pages.addWidget(self.names_types_page)
+
+
+        self.right_side_vertical_layout.addWidget(self.stacked_pages)
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
-        self.verticalLayout_3.addWidget(self.tableView)
-        self.horizontalLayout.addLayout(self.verticalLayout_3)
+        self.right_side_vertical_layout.addWidget(self.tableView)
+        self.horizontalLayout.addLayout(self.right_side_vertical_layout)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
 
         self.model = QStandardItemModel(self.tableView)
         self.tableView.setModel(self.model)
