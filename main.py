@@ -1,8 +1,8 @@
 # File: Main.py
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
-# Created: June 20, 2023 (Today's Date)
-# Last Modified: June 20, 2023 (Juned Miah - Adding Dask + edit menu for normalization and pre-processing)
+# Created: June 20, 2023,
+# Last Modified: June 22, 2023 (Anush - Search bar implemented)
 
 import os
 
@@ -11,16 +11,55 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 
-
 import csv_handler
 
 
 # noinspection PyUnresolvedReferences
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("Cell Profiler")
-        MainWindow.resize(760, 410)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+
+    def __init__(self):
+        self.settings_window = None
+        self.graph_window = None
+        self.names_types_window = None
+        self.checkboxes = None
+        self.data = None
+        self.actionExit = None
+        self.actionRemoveNA = None
+        self.actionExport_CSV = None
+        self.actionNormalizeData = None
+        self.actionLoad_CSV = None
+        self.statusbar = None
+        self.menuView = None
+        self.menuEdit = None
+        self.menuFile = None
+        self.menubar = None
+        self.model = None
+        self.tableView = None
+        self.gridLayout = None
+        self.scrollAreaWidgetContents = None
+        self.scrollArea = None
+        self.searchbar = None
+        self.Check_all_box = None
+        self.check_all_horizontal_layout = None
+        self.gridLayout_3 = None
+        self.names_types_page = None
+        self.stacked_pages = None
+        self.file_loaded_label = None
+        self.right_side_vertical_layout = None
+        self.settings_button = None
+        self.graph_button = None
+        self.types_button = None
+        self.modules_label = None
+        self.verticalLayout_2 = None
+        self.horizontalLayout = None
+        self.gridLayout_2 = None
+        self.verticalLayout = None
+        self.centralwidget = None
+
+    def setupUi(self, Main_window):
+        Main_window.setObjectName("Cell Profiler")
+        Main_window.resize(760, 410)
+        self.centralwidget = QtWidgets.QWidget(Main_window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -28,7 +67,6 @@ class Ui_MainWindow(object):
         # Grid layout for names and types page
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
-
 
         # Horizontal layout
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -41,19 +79,25 @@ class Ui_MainWindow(object):
         self.modules_label = QtWidgets.QLabel(self.centralwidget)
         self.modules_label.setObjectName("modules_label")
         self.verticalLayout_2.addWidget(self.modules_label)
+
         self.types_button = QtWidgets.QPushButton(self.centralwidget)
         self.types_button.setObjectName("types_button")
         self.verticalLayout_2.addWidget(self.types_button)
+        self.types_button.clicked.connect(self.on_name_types_clicked)
+
         self.graph_button = QtWidgets.QPushButton(self.centralwidget)
         self.graph_button.setObjectName("graph_button")
         self.verticalLayout_2.addWidget(self.graph_button)
+        self.graph_button.clicked.connect(self.on_graph_clicked)
+
         self.settings_button = QtWidgets.QPushButton(self.centralwidget)
         self.settings_button.setObjectName("settings_button")
         self.verticalLayout_2.addWidget(self.settings_button)
+        self.settings_button.clicked.connect(self.on_settings_clicked)
+
         self.verticalLayout_2.addSpacerItem(
             QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
         self.horizontalLayout.addLayout(self.verticalLayout_2)
-
 
         # Data section
         self.right_side_vertical_layout = QtWidgets.QVBoxLayout()
@@ -76,7 +120,6 @@ class Ui_MainWindow(object):
 
         self.check_all_horizontal_layout = QtWidgets.QHBoxLayout()
         self.check_all_horizontal_layout.setObjectName("check_all_horizontal_layout")
-
 
         # check all box and search bar setup
         self.Check_all_box = QtWidgets.QCheckBox(self.names_types_page)
@@ -116,8 +159,8 @@ class Ui_MainWindow(object):
         self.tableView.setModel(self.model)
 
         # Menu and status bar
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Main_window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main_window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 760, 21))
         self.menubar.setObjectName("menubar")
 
@@ -129,37 +172,37 @@ class Ui_MainWindow(object):
 
         self.menuView = QtWidgets.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
-        MainWindow.setMenuBar(self.menubar)
+        Main_window.setMenuBar(self.menubar)
 
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar = QtWidgets.QStatusBar(Main_window)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main_window.setStatusBar(self.statusbar)
 
-        self.actionLoad_CSV = QtWidgets.QAction(MainWindow)
+        self.actionLoad_CSV = QtWidgets.QAction(Main_window)
         self.actionLoad_CSV.setObjectName("actionLoad_CSV")
         self.actionLoad_CSV.setText("Load CSV")
         self.actionLoad_CSV.triggered.connect(self.loadCSV)
         self.menuFile.addAction(self.actionLoad_CSV)
 
-        self.actionExport_CSV = QtWidgets.QAction(MainWindow)
+        self.actionExport_CSV = QtWidgets.QAction(Main_window)
         self.actionExport_CSV.setObjectName("actionExport_CSV")
         self.actionExport_CSV.setText("Export CSV")
         self.actionExport_CSV.triggered.connect(self.exportCSV)
         self.menuFile.addAction(self.actionExport_CSV)
 
-        self.actionNormalizeData = QtWidgets.QAction(MainWindow)
+        self.actionNormalizeData = QtWidgets.QAction(Main_window)
         self.actionNormalizeData.setObjectName("actionNormalizeData")
         self.actionNormalizeData.setText("Normalize Data")
         self.actionNormalizeData.triggered.connect(self.normalizeData)
         self.menuEdit.addAction(self.actionNormalizeData)
 
-        self.actionRemoveNA = QtWidgets.QAction(MainWindow)
+        self.actionRemoveNA = QtWidgets.QAction(Main_window)
         self.actionRemoveNA.setObjectName("actionRemoveNA")
         self.actionRemoveNA.setText("Remove N/A entries")
         self.actionRemoveNA.triggered.connect(self.removeNA)
         self.menuEdit.addAction(self.actionRemoveNA)
 
-        self.actionExit = QtWidgets.QAction(MainWindow)
+        self.actionExit = QtWidgets.QAction(Main_window)
         self.actionExit.setObjectName("actionExit")
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
@@ -168,10 +211,10 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setTabOrder(self.settings_button, self.graph_button)
-        MainWindow.setTabOrder(self.graph_button, self.types_button)
+        self.retranslateUi(Main_window)
+        QtCore.QMetaObject.connectSlotsByName(Main_window)
+        Main_window.setTabOrder(self.settings_button, self.graph_button)
+        Main_window.setTabOrder(self.graph_button, self.types_button)
 
     def loadCSV(self):
         filename = csv_handler.browse_file()
@@ -186,7 +229,6 @@ class Ui_MainWindow(object):
                 print("No data in the file.")
         else:
             print("No file selected.")
-
 
     def create_checkboxes(self, columns):
         self.checkboxes = []
@@ -222,9 +264,6 @@ class Ui_MainWindow(object):
         except Exception as e:
             print(f"Error: {e}")
 
-
-
-
     def handle_search(self, text):
         for checkbox in self.checkboxes:
             if text.lower() in checkbox.text().lower():
@@ -240,9 +279,9 @@ class Ui_MainWindow(object):
             for index in range(self.model.rowCount()):
                 self.model.item(index, item.column()).setEnabled(True)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, Main_window):
         translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(translate("MainWindow", "Cell Profiler"))
+        Main_window.setWindowTitle(translate("MainWindow", "Cell Profiler"))
         self.modules_label.setText(translate("MainWindow", "Modules"))
         self.types_button.setText(translate("MainWindow", "Names / Types"))
         self.graph_button.setText(translate("MainWindow", "Graph"))
@@ -296,6 +335,18 @@ class Ui_MainWindow(object):
                 print("No file selected.")
         except Exception as e:
             print(f"Error: {str(e)}")
+
+    def on_name_types_clicked(self):
+        self.names_types_window = NamesTypesWindow()
+        self.names_types_window.show()
+
+    def on_graph_clicked(self):
+        self.graph_window = GraphWindow(self.centralwidget)
+        self.graph_window.show()
+
+    def on_settings_clicked(self):
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
 
 
 if __name__ == "__main__":
