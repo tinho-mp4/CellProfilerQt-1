@@ -9,6 +9,7 @@ import os
 from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
+import pandas as pd
 
 
 import csv_handler
@@ -264,7 +265,14 @@ class Ui_MainWindow(object):
 
     def normalizeData(self):
         try:
-            self.data = (self.data - self.data.min()) / (self.data.max() - self.data.min())
+            for column in self.data.columns:
+                # Check if column is numeric type
+                if pd.api.types.is_numeric_dtype(self.data[column]):
+                    min_val = self.data[column].min()
+                    max_val = self.data[column].max()
+                    # Perform normalization
+                    self.data[column] = (self.data[column] - min_val) / (max_val - min_val)
+
             self.display_data(self.data)
             self.create_checkboxes(self.data.columns)
             print("Data normalized successfully.")
