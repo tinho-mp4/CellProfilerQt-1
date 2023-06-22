@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
 
+        # Grid layout for names and types page
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
 
@@ -53,9 +54,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout_2)
 
 
-
-
-
         # Data section
         self.right_side_vertical_layout = QtWidgets.QVBoxLayout()
         self.right_side_vertical_layout.setObjectName("right_side_vertical_layout")
@@ -63,10 +61,12 @@ class Ui_MainWindow(object):
         self.file_loaded_label.setObjectName("file_loaded_label")
         self.right_side_vertical_layout.addWidget(self.file_loaded_label, 0, QtCore.Qt.AlignTop)
 
+        # Stacked pages setup to change between pages (change between modules)
         self.stacked_pages = QtWidgets.QStackedWidget(self.centralwidget)
         self.stacked_pages.setEnabled(True)
         self.stacked_pages.setObjectName("stacked_pages")
 
+        # names and types page setup
         self.names_types_page = QtWidgets.QWidget()
         self.names_types_page.setObjectName("names_types_page")
 
@@ -76,16 +76,21 @@ class Ui_MainWindow(object):
         self.check_all_horizontal_layout = QtWidgets.QHBoxLayout()
         self.check_all_horizontal_layout.setObjectName("check_all_horizontal_layout")
 
+
+        # check all box and search bar setup
         self.Check_all_box = QtWidgets.QCheckBox(self.names_types_page)
         self.Check_all_box.setObjectName("Check_all_box")
         self.Check_all_box.stateChanged.connect(self.checkAll)
         self.check_all_horizontal_layout.addWidget(self.Check_all_box)
+        self.Check_all_box.setEnabled(False)
 
         self.searchbar = QtWidgets.QLineEdit(self.names_types_page)
         self.searchbar.setObjectName("searchbar")
         self.check_all_horizontal_layout.addWidget(self.searchbar)
         self.gridLayout_3.addLayout(self.check_all_horizontal_layout, 1, 0, 1, 1)
+        self.searchbar.setEnabled(False)
 
+        # checkboxes scroll area setup
         self.scrollArea = QtWidgets.QScrollArea(self.names_types_page)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
@@ -97,15 +102,14 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout_3.addWidget(self.scrollArea, 3, 0, 1, 1)
         self.stacked_pages.addWidget(self.names_types_page)
-
-
         self.right_side_vertical_layout.addWidget(self.stacked_pages)
+
+        # Table view setup
         self.tableView = QtWidgets.QTableView(self.centralwidget)
         self.tableView.setObjectName("tableView")
         self.right_side_vertical_layout.addWidget(self.tableView)
         self.horizontalLayout.addLayout(self.right_side_vertical_layout)
         self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
-
         self.model = QStandardItemModel(self.tableView)
         self.tableView.setModel(self.model)
 
@@ -232,6 +236,7 @@ class Ui_MainWindow(object):
         self.settings_button.setText(translate("MainWindow", "Settings"))
         self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
         self.Check_all_box.setText(translate("MainWindow", "Check All"))
+        self.searchbar.setPlaceholderText(translate("MainWindow", "Search for column name in table"))
         self.menuFile.setTitle(translate("MainWindow", "File"))
         self.menuEdit.setTitle(translate("MainWindow", "Edit"))
         self.menuView.setTitle(translate("MainWindow", "View"))
@@ -239,6 +244,8 @@ class Ui_MainWindow(object):
         self.actionExit.setText(translate("MainWindow", "Exit"))
 
     def checkAll(self, state):
+        self.Check_all_box.setEnabled(True)
+        self.searchbar.setEnabled(True)
         # Check or uncheck all checkboxes based on the state of the "Check All" checkbox
         for checkbox in self.checkboxes:
             checkbox.setChecked(state == QtCore.Qt.Checked)
