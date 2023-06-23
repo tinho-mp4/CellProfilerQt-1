@@ -11,15 +11,14 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 
+
 import csv_handler
-from NamesTypesWindow import NameTypeWindow
-from GraphWindow import GraphWindow
-from SettingsWindow import SettingsWindow
 
 
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.settings_page = None
         self.settings_window = None
         self.graph_window = None
         self.names_types_window = None
@@ -82,20 +81,18 @@ class Ui_MainWindow(object):
         self.modules_label.setObjectName("modules_label")
         self.verticalLayout_2.addWidget(self.modules_label)
 
+        # types button
         self.types_button = QtWidgets.QPushButton(self.centralwidget)
         self.types_button.setObjectName("types_button")
         self.verticalLayout_2.addWidget(self.types_button)
-        self.types_button.clicked.connect(self.on_name_types_clicked)
 
         self.graph_button = QtWidgets.QPushButton(self.centralwidget)
         self.graph_button.setObjectName("graph_button")
         self.verticalLayout_2.addWidget(self.graph_button)
-        self.graph_button.clicked.connect(self.on_graph_clicked)
 
         self.settings_button = QtWidgets.QPushButton(self.centralwidget)
         self.settings_button.setObjectName("settings_button")
         self.verticalLayout_2.addWidget(self.settings_button)
-        self.settings_button.clicked.connect(self.on_settings_clicked)
 
         self.verticalLayout_2.addSpacerItem(
             QtWidgets.QSpacerItem(20, 250, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
@@ -110,8 +107,17 @@ class Ui_MainWindow(object):
 
         # Stacked pages setup to change between pages (change between modules)
         self.stacked_pages = QtWidgets.QStackedWidget(self.centralwidget)
-        self.stacked_pages.setEnabled(True)
         self.stacked_pages.setObjectName("stacked_pages")
+
+        # Graph page
+        self.graph_page = QtWidgets.QWidget()
+        self.graph_page.setObjectName("graph_page")
+        self.stacked_pages.addWidget(self.graph_page)
+
+        # settings page
+        self.settings_page = QtWidgets.QWidget()
+        self.settings_page.setObjectName("settings_page")
+        self.stacked_pages.addWidget(self.settings_page)
 
         # names and types page setup
         self.names_types_page = QtWidgets.QWidget()
@@ -213,10 +219,13 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
 
+        self.types_button.clicked.connect(lambda: self.on_name_types_clicked(self.stacked_pages))
+        self.graph_button.clicked.connect(lambda: self.on_graph_clicked(self.stacked_pages))
+        self.settings_button.clicked.connect(lambda: self.on_settings_clicked(self.stacked_pages))
+
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
-        Main_window.setTabOrder(self.settings_button, self.graph_button)
-        Main_window.setTabOrder(self.graph_button, self.types_button)
+
 
     def loadCSV(self):
         filename = csv_handler.browse_file()
@@ -338,17 +347,14 @@ class Ui_MainWindow(object):
         except Exception as e:
             print(f"Error: {str(e)}")
 
-    def on_name_types_clicked(self):
-        self.names_types_window = NameTypeWindow()
-        self.names_types_window.show()
+    def on_name_types_clicked(self, stacked_pages):
+        stacked_pages.setCurrentWidget(self.names_types_page)
 
-    def on_graph_clicked(self):
-        self.graph_window = GraphWindow()
-        self.graph_window.show()
+    def on_graph_clicked(self, stacked_pages):
+        stacked_pages.setCurrentWidget(self.graph_page)
 
-    def on_settings_clicked(self):
-        self.settings_window = SettingsWindow()
-        self.settings_window.show()
+    def on_settings_clicked(self, stacked_pages):
+        stacked_pages.setCurrentWidget(self.settings_page)
 
 
 if __name__ == "__main__":
