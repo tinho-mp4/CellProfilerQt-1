@@ -212,6 +212,8 @@ class Ui_MainWindow(object):
 
         self.actionExit = QtWidgets.QAction(Main_window)
         self.actionExit.setObjectName("actionExit")
+        self.actionExit.setText("Exit")
+        self.actionExit.triggered.connect(QtWidgets.qApp.quit)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
 
@@ -225,7 +227,6 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
-
 
     def loadCSV(self):
         filename = csv_handler.browse_file()
