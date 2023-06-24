@@ -10,7 +10,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
-
+import numpy as np
 
 import csv_handler
 
@@ -18,6 +18,7 @@ import csv_handler
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.graph_page = None
         self.settings_page = None
         self.settings_window = None
         self.graph_window = None
@@ -319,10 +320,17 @@ class Ui_MainWindow(object):
             for column in self.data.columns:
                 # Check if column is numeric type
                 if pd.api.types.is_numeric_dtype(self.data[column]):
+                    # Replace NaN values with column mean
+                    column_mean = self.data[column].mean()
+                    self.data[column].fillna(column_mean, inplace=True)
+                    # Perform normalization
                     min_val = self.data[column].min()
                     max_val = self.data[column].max()
-                    # Perform normalization
-                    self.data[column] = (self.data[column] - min_val) / (max_val - min_val)
+                    if min_val != max_val:
+                        self.data[column] = (self.data[column] - min_val) / (max_val - min_val)
+                    else:
+                        # Handle the case where all values in the column are the same
+                        self.data[column] = np.nan
 
             self.display_data(self.data)
             self.create_checkboxes(self.data.columns)
