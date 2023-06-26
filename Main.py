@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 import numpy as np
 
-import csv_handler
+import CSVHandler
 from SettingsWindow import SettingWindow
 from GraphPage import GraphPage
 
