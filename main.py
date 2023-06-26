@@ -12,13 +12,13 @@ from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 import numpy as np
 
-
 import csv_handler
-
+from SettingsWindow import SettingWindow
 
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.settings_ui = None
         self.graph_page = None
         self.settings_page = None
         self.settings_window = None
@@ -228,7 +228,7 @@ class Ui_MainWindow(object):
 
         self.types_button.clicked.connect(lambda: self.on_name_types_clicked(self.stacked_pages))
         self.graph_button.clicked.connect(lambda: self.on_graph_clicked(self.stacked_pages))
-        self.settings_button.clicked.connect(lambda: self.on_settings_clicked(self.stacked_pages))
+        self.settings_button.clicked.connect(self.on_settings_clicked)
 
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
@@ -366,8 +366,9 @@ class Ui_MainWindow(object):
     def on_graph_clicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.graph_page)
 
-    def on_settings_clicked(self, stacked_pages):
-        stacked_pages.setCurrentWidget(self.settings_page)
+    def on_settings_clicked(self):
+        self.settings_window = SettingWindow()
+        self.settings_window.show()
 
 
 if __name__ == "__main__":
