@@ -1,7 +1,8 @@
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
+import os
 
 
 class CSVTableModel(QAbstractTableModel):

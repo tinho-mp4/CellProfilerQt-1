@@ -14,11 +14,13 @@ import numpy as np
 
 import csv_handler
 from SettingsWindow import SettingWindow
+from GraphPage import GraphPage
+
 
 class Ui_MainWindow(object):
 
     def __init__(self):
-        self.horizontal_layout_gernerate_button = None
+        self.gridLayout_6 = None
         self.settings_ui = None
         self.graph_page = None
         self.settings_page = None
@@ -74,7 +76,6 @@ class Ui_MainWindow(object):
         self.gridLayout_6 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_6.setObjectName("gridLayout_6")
 
-
         # Grid layout for names and types page
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -119,73 +120,14 @@ class Ui_MainWindow(object):
         self.stacked_pages = QtWidgets.QStackedWidget(self.centralwidget)
         self.stacked_pages.setObjectName("stacked_pages")
 
-        # Graph page
-        self.graph_page = QtWidgets.QWidget()
-        self.graph_page.setEnabled(True)
-        self.graph_page.setObjectName("graph_page")
-        self.gridLayout_7 = QtWidgets.QGridLayout(self.graph_page)
-        self.gridLayout_7.setObjectName("gridLayout_7")
-        self.graph_grid_frame = QtWidgets.QFrame(self.graph_page)
-        self.graph_grid_frame.setObjectName("graph_grid_frame")
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.graph_grid_frame)
-        self.gridLayout_4.setObjectName("gridLayout_4")
-        self.vertical_layout_graph_left = QtWidgets.QWidget(self.graph_grid_frame)
-        self.vertical_layout_graph_left.setObjectName("vertical_layout_graph_left")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.vertical_layout_graph_left)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.scatter_plot_radio = QtWidgets.QRadioButton(self.vertical_layout_graph_left)
-        self.scatter_plot_radio.setObjectName("scatter_plot_radio")
-        self.verticalLayout.addWidget(self.scatter_plot_radio)
-        self.bar_graph_radio = QtWidgets.QRadioButton(self.vertical_layout_graph_left)
-        self.bar_graph_radio.setObjectName("bar_graph_radio")
-        self.verticalLayout.addWidget(self.bar_graph_radio)
-        self.example_button = QtWidgets.QCheckBox(self.vertical_layout_graph_left)
-        self.example_button.setObjectName("example_button")
-        self.verticalLayout.addWidget(self.example_button)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem1)
-        self.gridLayout_4.addWidget(self.vertical_layout_graph_left, 0, 0, 1, 1)
-        self.vertical_layout_graph_right = QtWidgets.QVBoxLayout()
-        self.vertical_layout_graph_right.setObjectName("vertical_layout_graph_right")
-        self.check_all_horizontal_layout_2 = QtWidgets.QHBoxLayout()
-        self.check_all_horizontal_layout_2.setObjectName("check_all_horizontal_layout_2")
-        self.Check_all_box_2 = QtWidgets.QCheckBox(self.graph_grid_frame)
-        self.Check_all_box_2.setSizeIncrement(QtCore.QSize(0, 0))
-        self.Check_all_box_2.setObjectName("Check_all_box_2")
-        self.check_all_horizontal_layout_2.addWidget(self.Check_all_box_2)
-        self.searchbar_2 = QtWidgets.QLineEdit(self.graph_grid_frame)
-        self.searchbar_2.setObjectName("searchbar_2")
-        self.check_all_horizontal_layout_2.addWidget(self.searchbar_2)
-        self.vertical_layout_graph_right.addLayout(self.check_all_horizontal_layout_2)
-        self.scrollArea_2 = QtWidgets.QScrollArea(self.graph_grid_frame)
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollArea_2.setObjectName("scrollArea_2")
-        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 749, 178))
-        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_2)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
-        self.vertical_layout_graph_right.addWidget(self.scrollArea_2)
-        self.horizontal_layout_gernerate_button = QtWidgets.QHBoxLayout()
-        self.horizontal_layout_gernerate_button.setObjectName("horizontal_layout_gernerate_button")
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontal_layout_gernerate_button.addItem(spacerItem2)
-        self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
-        self.generate_graph.setObjectName("generate_graph")
-        self.horizontal_layout_gernerate_button.addWidget(self.generate_graph)
-        self.vertical_layout_graph_right.addLayout(self.horizontal_layout_gernerate_button)
-        self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 1, 1, 1)
-        self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
-        self.stacked_pages.addWidget(self.graph_page)
-        self.gridLayout_6.addLayout(self.gridLayout_2, 0, 0, 1, 1)
-
-
-
         # settings page
         self.settings_page = QtWidgets.QWidget()
         self.settings_page.setObjectName("settings_page")
         self.stacked_pages.addWidget(self.settings_page)
+
+        # graph page
+        self.graph_page = GraphPage()
+        self.stacked_pages.addWidget(self.graph_page)
 
         # names and types page setup
         self.names_types_page = QtWidgets.QWidget()
@@ -293,7 +235,6 @@ class Ui_MainWindow(object):
         self.graph_button.clicked.connect(lambda: self.on_graph_clicked(self.stacked_pages))
         self.settings_button.clicked.connect(self.on_settings_clicked)
 
-
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
 
@@ -375,12 +316,6 @@ class Ui_MainWindow(object):
         self.menuView.setTitle(translate("MainWindow", "View"))
         self.actionLoad_CSV.setText(translate("MainWindow", "Load CSV"))
         self.actionExit.setText(translate("MainWindow", "Exit"))
-        self.scatter_plot_radio.setText(translate("MainWindow", "Scatter Plot"))
-        self.bar_graph_radio.setText(translate("MainWindow", "Bar Graph"))
-        self.example_button.setText(translate("MainWindow", "Graph Options Example button"))
-        self.Check_all_box_2.setText(translate("MainWindow", "Check All"))
-        self.generate_graph.setText(translate("MainWindow", "Generate"))
-
 
     def checkAll(self, state):
         self.Check_all_box.setEnabled(True)
