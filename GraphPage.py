@@ -8,7 +8,6 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, QRect, Qt
 
 
-
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
