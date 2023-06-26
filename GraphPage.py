@@ -2,7 +2,7 @@
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
 # Created: June 26, 2023,
-# Last Modified: June 26, 2023 (Juned - Displaying Data)
+# Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, QRect, Qt

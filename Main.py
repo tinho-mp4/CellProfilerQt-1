@@ -2,7 +2,7 @@
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
 # Created: June 20, 2023,
-# Last Modified: June 26, 2023 (Juned - Commit)
+# Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
 
 import os
 
