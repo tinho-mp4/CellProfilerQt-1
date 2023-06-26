@@ -2,15 +2,16 @@
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
 # Created: June 20, 2023,
-# Last Modified: June 22, 2023 (Anush - Search bar implemented)
+# Last Modified: June 26, 2023 (Juned - Commit)
 
 import os
 
 from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 import pandas as pd
 import numpy as np
+
 
 import CSVHandler
 from SettingsWindow import SettingWindow
@@ -239,10 +240,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(Main_window)
 
     def loadCSV(self):
-        filename = csv_handler.browse_file()
+        filename = CSVHandler.browse_file()
         if filename:
             self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
-            self.data = csv_handler.load_csv_file(filename)
+            self.data = CSVHandler.load_csv_file(filename)
             if self.data is not None:
                 self.display_data(self.data)
                 self.create_checkboxes(self.data.columns)
@@ -359,7 +360,7 @@ class Ui_MainWindow(object):
         try:
             filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
             if filename:
-                csv_handler.export_csv_file(filename, self.data)
+                CSVHandler.export_csv_file(filename, self.data)
             else:
                 print("No file selected.")
         except Exception as e:
@@ -369,7 +370,15 @@ class Ui_MainWindow(object):
         stacked_pages.setCurrentWidget(self.names_types_page)
 
     def on_graph_clicked(self, stacked_pages):
-        stacked_pages.setCurrentWidget(self.graph_page)
+        if self.data is not None:  # Check if data is loaded
+            stacked_pages.setCurrentWidget(self.graph_page)
+            self.graph_page.display_data_columns(self.data.columns)
+        else:
+            message_box = QMessageBox()
+            message_box.setIcon(QMessageBox.Warning)
+            message_box.setWindowTitle("No CSV Data")
+            message_box.setText("No CSV data loaded. Please load a CSV file before accessing the Graph.")
+            message_box.exec_()
 
     def on_settings_clicked(self):
         self.settings_window = SettingWindow()
