@@ -7,10 +7,11 @@
 import os
 
 from PyQt5 import QtCore
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 import numpy as np
+
 
 import csv_handler
 
@@ -61,6 +62,9 @@ class Ui_MainWindow(object):
     def setupUi(self, Main_window):
         Main_window.setObjectName("Cell Profiler")
         Main_window.resize(760, 410)
+        # Set application icon
+        icon = QIcon("img/710590.png")
+        Main_window.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(Main_window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
