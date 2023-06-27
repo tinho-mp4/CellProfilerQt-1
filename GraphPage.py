@@ -94,7 +94,6 @@ class GraphPage(QtWidgets.QWidget):
 
         self.gridLayout_4.addLayout(self.graph_options, 0, 3, 1, 1)
 
-
         # graph types (scatter/bar/example button)
         self.vertical_layout_graph_left = QtWidgets.QWidget(self.graph_grid_frame)
         self.vertical_layout_graph_left.setObjectName("vertical_layout_graph_left")

@@ -2,9 +2,10 @@
 # Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
 # Authors: Anush Varma, Juned Miah
 # Created: June 20, 2023,
-# Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
+# Last Modified: June 26, 2023 (Juned - Fixed NormalizeData)
 
 import os
+import math
 
 from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -245,6 +246,14 @@ class Ui_MainWindow(object):
             self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
             self.data = CSVHandler.load_csv_file(filename)
             if self.data is not None:
+                # Replace NaN values in 'PLATE' column with 'Unknown'
+                if 'PLATE' in self.data.columns:
+                    self.data['PLATE'].fillna('Unknown', inplace=True)
+
+                # Replace NaN values in 'Metadata_Compound_Plate' column with 'Unknown'
+                if 'Metadata_Compound_Plate' in self.data.columns:
+                    self.data['Metadata_Compound_Plate'].fillna('Unknown', inplace=True)
+
                 self.display_data(self.data)
                 self.create_checkboxes(self.data.columns)
                 self.Check_all_box.setChecked(True)
@@ -325,22 +334,27 @@ class Ui_MainWindow(object):
         for checkbox in self.checkboxes:
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
+    import math
+
+    # ...
+
     def normalizeData(self):
         try:
-            for column in self.data.columns:
+            columns_to_normalize = [col for col in self.data.columns if col not in ['PLATE', 'Metadata_Compound_Plate']]
+
+            for column in columns_to_normalize:
                 # Check if column is numeric type
                 if pd.api.types.is_numeric_dtype(self.data[column]):
                     # Replace NaN values with column mean
                     column_mean = self.data[column].mean()
                     self.data[column].fillna(column_mean, inplace=True)
                     # Perform normalization
-                    min_val = self.data[column].min()
-                    max_val = self.data[column].max()
-                    if min_val != max_val:
-                        self.data[column] = (self.data[column] - min_val) / (max_val - min_val)
-                    else:
-                        # Handle the case where all values in the column are the same
+                    column_std = self.data[column].std()
+                    if math.isclose(column_std, 0):
+                        # Handle the case where standard deviation is close to zero
                         self.data[column] = np.nan
+                    else:
+                        self.data[column] = (self.data[column] - column_mean) / column_std
 
             self.display_data(self.data)
             self.create_checkboxes(self.data.columns)
