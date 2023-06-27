@@ -10,7 +10,9 @@ import math
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow, \
+    QDialogButtonBox, QVBoxLayout, QComboBox, QLabel, QDialog
+
 import pandas as pd
 import numpy as np
 
@@ -22,6 +24,7 @@ from GraphPage import GraphPage
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.actionGroupColumns = None
         self.actionToggleFullScreen = None
         self.gridLayout_6 = None
         self.settings_ui = None
@@ -223,6 +226,14 @@ class Ui_MainWindow(object):
         self.actionRemoveNA.triggered.connect(self.removeNA)
         self.menuEdit.addAction(self.actionRemoveNA)
 
+        self.menuEdit.addSeparator()  # Add separator before "Group Columns"
+
+        self.actionGroupColumns = QtWidgets.QAction(Main_window)
+        self.actionGroupColumns.setObjectName("actionGroupColumns")
+        self.actionGroupColumns.setText("Group Columns")
+        self.actionGroupColumns.triggered.connect(self.groupColumns)
+        self.menuEdit.addAction(self.actionGroupColumns)
+
         self.actionExit = QtWidgets.QAction(Main_window)
         self.actionExit.setObjectName("actionExit")
         self.actionExit.setText("Exit")
@@ -399,29 +410,49 @@ class Ui_MainWindow(object):
                 None, "N/A Removal Error", error_message, QMessageBox.Ok
             )
 
-    def exportCSV(self):
+    @staticmethod
+    def exportCSV(data=None):
         try:
-            if self.data is not None:
-                if self.data.empty:
-                    QMessageBox.warning(None, "Export CSV", "No data available. Please load a CSV file first.",
-                                        QMessageBox.Ok)
+            if data is not None:
+                if data.empty:
+                    QMessageBox.warning(None, "Export CSV", "No data available.", QMessageBox.Ok)
                 else:
                     filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
                     if filename:
-                        CSVHandler.export_csv_file(filename, self.data)
-                        QMessageBox.information(None, "Export CSV", "CSV file exported successfully.",
-                                                QMessageBox.Ok)
+                        CSVHandler.export_csv_file(filename, data)
+                        QMessageBox.information(None, "Export CSV", "CSV file exported successfully.", QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(None, "No File Selected", "No file selected.",
-                                            QMessageBox.Ok)
+                        QMessageBox.warning(None, "No File Selected", "No file selected.", QMessageBox.Ok)
             else:
-                QMessageBox.warning(None, "Export CSV", "No data available. Please load a CSV file first.",
-                                    QMessageBox.Ok)
+                QMessageBox.warning(None, "Export CSV", "No data available.", QMessageBox.Ok)
         except Exception as e:
             error_message = f"Error: {str(e)}"
             print(error_message)
-            QMessageBox.critical(None, "Export CSV Error", error_message,
-                                 QMessageBox.Ok)
+            QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
+
+    def groupColumns(self):
+        try:
+            if self.data is not None and not self.data.empty:
+                grouping_column = 'Category'  # Replace 'Category' with the actual column name for grouping
+                if grouping_column in self.data.columns:
+                    grouped_data = self.data.groupby(grouping_column)
+                    aggregated_data = grouped_data.mean()  # Replace 'mean' with the desired aggregation function
+
+                    self.data = aggregated_data
+                    self.display_data(self.data)
+                    self.create_checkboxes(self.data.columns)
+
+                    QMessageBox.information(None, "Group Columns", "Columns grouped successfully.", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(None, "Group Columns", f"Column '{grouping_column}' not found in data.",
+                                        QMessageBox.Ok)
+            else:
+                QMessageBox.warning(None, "Group Columns", "No data available. Please load a CSV file first.",
+                                    QMessageBox.Ok)
+        except Exception as e:
+            error_message = f"Error while grouping columns: {e}"
+            print(error_message)
+            QMessageBox.critical(None, "Group Columns Error", error_message, QMessageBox.Ok)
 
     def on_name_types_clicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.names_types_page)
@@ -456,6 +487,38 @@ class Ui_MainWindow(object):
         self.menuView.setTitle(translate("MainWindow", "View"))
         self.actionLoad_CSV.setText(translate("MainWindow", "Load CSV"))
         self.actionExit.setText(translate("MainWindow", "Exit"))
+
+
+class GroupColumnsDialog(QDialog):
+    def __init__(self, columns, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Group Columns")
+        self.columns = columns
+        self.grouped_columns = []
+
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+
+        label = QLabel("Select columns to group:")
+        layout.addWidget(label)
+
+        self.column_combobox = QComboBox()
+        self.column_combobox.addItems(self.columns)
+        layout.addWidget(self.column_combobox)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Add | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        button_box.button(QDialogButtonBox.Add).clicked.connect(self.addColumn)
+        layout.addWidget(button_box)
+
+    def addColumn(self):
+        column = self.column_combobox.currentText()
+        if column not in self.grouped_columns:
+            self.grouped_columns.append(column)
+
+    def getGroupedColumns(self):
+        return self.grouped_columns
 
 
 if __name__ == "__main__":
