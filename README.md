@@ -1,6 +1,6 @@
 # CellProfiler
 
-CellProfiler is a CellProfiler is a robust and user-friendly software tool that offers seamless interactions with .csv data tables for manipulation, transformation, and analysis. The software is equipped to handle tasks like data cleaning/pre-processing, and can conduct comprehensive analyses such as correlation plots and dimensional reduction like PCA for multi-variable visualization. Its GUI framework has been carefully designed to offer accessibility to users who prefer not to engage directly with algorithms, making complex data transformations accessible to a wider user base without requiring extensive coding knowledge. This document provides information on how to setup, use and contribute to CellProfiler.
+CellProfiler is a CellProfiler is a robust and user-friendly software tool that offers seamless interactions with .csv data tables for manipulation, transformation, and analysis. The software is equipped to handle tasks like data cleaning/pre-processing, and can conduct comprehensive analyses such as correlation plots and dimensional reduction like PCA for multi-variable visualization. Its GUI framework has been carefully designed to offer accessibility to users who prefer not to engage directly with algorithms, making complex data transformations accessible to a wider user base without requiring extensive coding knowledge. This document provides information on how to set up, use and contribute to CellProfiler.
 
 ## Features
 
