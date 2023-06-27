@@ -8,11 +8,11 @@ import os
 import math
 
 from PyQt5 import QtCore
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow
 import pandas as pd
 import numpy as np
-
 
 import CSVHandler
 from SettingsWindow import SettingWindow
@@ -22,6 +22,7 @@ from GraphPage import GraphPage
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.actionToggleFullScreen = None
         self.gridLayout_6 = None
         self.settings_ui = None
         self.graph_page = None
@@ -229,6 +230,13 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
 
+        self.actionToggleFullScreen = QtWidgets.QAction(Main_window)
+        self.actionToggleFullScreen.setObjectName("actionToggleFullScreen")
+        self.actionToggleFullScreen.setText("Toggle Full Screen")
+        self.actionToggleFullScreen.triggered.connect(
+            lambda: self.toggleFullScreen(Main_window, self.actionToggleFullScreen))
+        self.menuView.addAction(self.actionToggleFullScreen)
+
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
@@ -241,26 +249,28 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(Main_window)
 
     def loadCSV(self):
-        filename = CSVHandler.browse_file()
-        if filename:
-            self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
-            self.data = CSVHandler.load_csv_file(filename)
-            if self.data is not None:
-                # Replace NaN values in 'PLATE' column with 'Unknown'
-                if 'PLATE' in self.data.columns:
-                    self.data['PLATE'].fillna('Unknown', inplace=True)
-
-                # Replace NaN values in 'Metadata_Compound_Plate' column with 'Unknown'
-                if 'Metadata_Compound_Plate' in self.data.columns:
-                    self.data['Metadata_Compound_Plate'].fillna('Unknown', inplace=True)
-
-                self.display_data(self.data)
-                self.create_checkboxes(self.data.columns)
-                self.Check_all_box.setChecked(True)
-            else:
-                print("No data in the file.")
-        else:
-            print("No file selected.")
+        try:
+            filename = CSVHandler.browse_file()
+            if filename:
+                self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
+                self.data = CSVHandler.load_csv_file(filename)
+                if self.data is not None and not self.data.empty:
+                    # Handle missing plate information for 'Plate' column (case-insensitive)
+                    plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
+                    if plate_column:
+                        self.data[plate_column].fillna('Unknown',
+                                                       inplace=True)  # Replace NaN with 'Unknown' label for plate
+                    self.display_data(self.data)
+                    self.create_checkboxes(self.data.columns)
+                    self.Check_all_box.setChecked(True)
+                else:
+                    error_message = "No data in the file."
+                    print(error_message)
+                    QMessageBox.warning(None, "No Data", error_message, QMessageBox.Ok)
+        except Exception as e:
+            error_message = f"Error while loading CSV file: {e}"
+            print(error_message)
+            QMessageBox.critical(None, "CSV Loading Error", error_message, QMessageBox.Ok)
 
     def create_checkboxes(self, columns):
         self.checkboxes = []
@@ -294,7 +304,7 @@ class Ui_MainWindow(object):
                         self.model.setItem(i, j, item)
 
         except Exception as e:
-            print(f"Error: {e}")
+            QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
     def handle_search(self, text):
         for checkbox in self.checkboxes:
@@ -311,21 +321,15 @@ class Ui_MainWindow(object):
             for index in range(self.model.rowCount()):
                 self.model.item(index, item.column()).setEnabled(True)
 
-    def retranslateUi(self, Main_window):
-        translate = QtCore.QCoreApplication.translate
-        Main_window.setWindowTitle(translate("MainWindow", "Cell Profiler"))
-        self.modules_label.setText(translate("MainWindow", "Modules"))
-        self.types_button.setText(translate("MainWindow", "Names / Types"))
-        self.graph_button.setText(translate("MainWindow", "Graph"))
-        self.settings_button.setText(translate("MainWindow", "Settings"))
-        self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
-        self.Check_all_box.setText(translate("MainWindow", "Check All"))
-        self.searchbar.setPlaceholderText(translate("MainWindow", "Search for column name in table"))
-        self.menuFile.setTitle(translate("MainWindow", "File"))
-        self.menuEdit.setTitle(translate("MainWindow", "Edit"))
-        self.menuView.setTitle(translate("MainWindow", "View"))
-        self.actionLoad_CSV.setText(translate("MainWindow", "Load CSV"))
-        self.actionExit.setText(translate("MainWindow", "Exit"))
+    @staticmethod
+    def toggleFullScreen(window, action):
+        if window.isFullScreen():
+            window.showNormal()
+            window.setWindowState(Qt.WindowNoState)
+            action.setText("Toggle Full Screen")
+        else:
+            window.showFullScreen()
+            action.setText("Restore Normal Size")
 
     def checkAll(self, state):
         self.Check_all_box.setEnabled(True)
@@ -334,51 +338,90 @@ class Ui_MainWindow(object):
         for checkbox in self.checkboxes:
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
-    import math
-
-    # ...
-
     def normalizeData(self):
         try:
-            columns_to_normalize = [col for col in self.data.columns if col not in ['PLATE', 'Metadata_Compound_Plate']]
+            if self.data is not None:
+                columns_to_normalize = [col for col in self.data.columns if
+                                        col not in ['PLATE', 'Metadata_Compound_Plate']]
 
-            for column in columns_to_normalize:
-                # Check if column is numeric type
-                if pd.api.types.is_numeric_dtype(self.data[column]):
-                    # Replace NaN values with column mean
-                    column_mean = self.data[column].mean()
-                    self.data[column].fillna(column_mean, inplace=True)
-                    # Perform normalization
-                    column_std = self.data[column].std()
-                    if math.isclose(column_std, 0):
-                        # Handle the case where standard deviation is close to zero
-                        self.data[column] = np.nan
-                    else:
-                        self.data[column] = (self.data[column] - column_mean) / column_std
+                if len(columns_to_normalize) > 0:
+                    for column in columns_to_normalize:
+                        # Check if column is numeric type
+                        if pd.api.types.is_numeric_dtype(self.data[column]):
+                            # Replace NaN values with column mean
+                            column_mean = self.data[column].mean()
+                            self.data[column].fillna(column_mean, inplace=True)
+                            # Perform normalization
+                            column_std = self.data[column].std()
+                            if math.isclose(column_std, 0):
+                                # Handle the case where standard deviation is close to zero
+                                self.data[column] = np.nan
+                            else:
+                                self.data[column] = (self.data[column] - column_mean) / column_std
 
-            self.display_data(self.data)
-            self.create_checkboxes(self.data.columns)
-            print("Data normalized successfully.")
+                    self.display_data(self.data)
+                    self.create_checkboxes(self.data.columns)
+                    QMessageBox.information(
+                        None, "Normalization Complete", "Data normalized successfully.", QMessageBox.Ok
+                    )
+                else:
+                    QMessageBox.warning(
+                        None, "Normalization Error", "No columns available for normalization.", QMessageBox.Ok
+                    )
+            else:
+                QMessageBox.warning(
+                    None, "Normalization Error", "No data loaded. Please load a CSV file first.", QMessageBox.Ok
+                )
         except Exception as e:
-            print(f"Error while normalizing data: {e}")
+            error_message = f"Error while normalizing data: {e}"
+            print(error_message)
+            QMessageBox.critical(None, "Normalization Error", error_message, QMessageBox.Ok, QMessageBox.Critical)
 
     def removeNA(self):
         try:
-            self.data = self.data.dropna()  # Remove rows with missing values
-            self.display_data(self.data)
-            print("N/A entries removed successfully.")
+            if self.data is not None:
+                self.data = self.data.dropna()  # Remove rows with missing values
+                self.display_data(self.data)
+                QMessageBox.information(
+                    None, "N/A Removal", "N/A entries removed successfully.", QMessageBox.Ok
+                )
+            else:
+                QMessageBox.warning(
+                    None,
+                    "N/A Removal",
+                    "No data loaded. Please load a CSV file first.",
+                    QMessageBox.Ok,
+                )
         except Exception as e:
-            print(f"Error while removing N/A entries: {e}")
+            error_message = f"Error while removing N/A entries: {e}"
+            print(error_message)
+            QMessageBox.critical(
+                None, "N/A Removal Error", error_message, QMessageBox.Ok
+            )
 
     def exportCSV(self):
         try:
-            filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
-            if filename:
-                CSVHandler.export_csv_file(filename, self.data)
+            if self.data is not None:
+                if self.data.empty:
+                    QMessageBox.warning(None, "Export CSV", "No data available. Please load a CSV file first.",
+                                        QMessageBox.Ok)
+                else:
+                    filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
+                    if filename:
+                        CSVHandler.export_csv_file(filename, self.data)
+                        QMessageBox.information(None, "Export CSV", "CSV file exported successfully.",
+                                                QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(None, "No File Selected", "No file selected.",
+                                            QMessageBox.Ok)
             else:
-                print("No file selected.")
+                QMessageBox.warning(None, "Export CSV", "No data available. Please load a CSV file first.",
+                                    QMessageBox.Ok)
         except Exception as e:
-            print(f"Error: {str(e)}")
+            error_message = f"Error: {str(e)}"
+            print(error_message)
+            QMessageBox.critical(None, "Export CSV Error", error_message,
+                                 QMessageBox.Ok)
 
     def on_name_types_clicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.names_types_page)
@@ -397,6 +440,22 @@ class Ui_MainWindow(object):
     def on_settings_clicked(self):
         self.settings_window = SettingWindow()
         self.settings_window.show()
+
+    def retranslateUi(self, Main_window):
+        translate = QtCore.QCoreApplication.translate
+        Main_window.setWindowTitle(translate("MainWindow", "Cell Profiler"))
+        self.modules_label.setText(translate("MainWindow", "Modules"))
+        self.types_button.setText(translate("MainWindow", "Names / Types"))
+        self.graph_button.setText(translate("MainWindow", "Graph"))
+        self.settings_button.setText(translate("MainWindow", "Settings"))
+        self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
+        self.Check_all_box.setText(translate("MainWindow", "Check All"))
+        self.searchbar.setPlaceholderText(translate("MainWindow", "Search for column name in table"))
+        self.menuFile.setTitle(translate("MainWindow", "File"))
+        self.menuEdit.setTitle(translate("MainWindow", "Edit"))
+        self.menuView.setTitle(translate("MainWindow", "View"))
+        self.actionLoad_CSV.setText(translate("MainWindow", "Load CSV"))
+        self.actionExit.setText(translate("MainWindow", "Exit"))
 
 
 if __name__ == "__main__":
