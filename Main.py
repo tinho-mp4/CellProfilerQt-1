@@ -433,19 +433,17 @@ class Ui_MainWindow(object):
     def groupColumns(self):
         try:
             if self.data is not None and not self.data.empty:
-                grouping_column = 'Category'  # Replace 'Category' with the actual column name for grouping
-                if grouping_column in self.data.columns:
-                    grouped_data = self.data.groupby(grouping_column)
-                    aggregated_data = grouped_data.mean()  # Replace 'mean' with the desired aggregation function
-
-                    self.data = aggregated_data
-                    self.display_data(self.data)
-                    self.create_checkboxes(self.data.columns)
-
-                    QMessageBox.information(None, "Group Columns", "Columns grouped successfully.", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(None, "Group Columns", f"Column '{grouping_column}' not found in data.",
-                                        QMessageBox.Ok)
+                group_dialog = GroupColumnsDialog(self.data.columns)
+                if group_dialog.exec_() == QDialog.Accepted:
+                    grouped_columns = group_dialog.getGroupedColumns()
+                    if grouped_columns:
+                        grouped_data = self.data.groupby(grouped_columns, as_index=False).mean()
+                        self.data = grouped_data
+                        self.display_data(self.data)
+                        self.create_checkboxes(self.data.columns)
+                        QMessageBox.information(None, "Group Columns", "Columns grouped successfully.", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(None, "Group Columns", "No columns selected for grouping.", QMessageBox.Ok)
             else:
                 QMessageBox.warning(None, "Group Columns", "No data available. Please load a CSV file first.",
                                     QMessageBox.Ok)
@@ -506,10 +504,11 @@ class GroupColumnsDialog(QDialog):
         self.column_combobox.addItems(self.columns)
         layout.addWidget(self.column_combobox)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Add | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        add_button = button_box.addButton("Add", QDialogButtonBox.ActionRole)
+        add_button.clicked.connect(self.addColumn)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.Add).clicked.connect(self.addColumn)
         layout.addWidget(button_box)
 
     def addColumn(self):
