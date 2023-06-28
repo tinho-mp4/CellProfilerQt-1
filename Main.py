@@ -8,7 +8,7 @@ import os
 import math
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow, \
     QDialogButtonBox, QVBoxLayout, QComboBox, QLabel, QDialog, QInputDialog
@@ -24,6 +24,10 @@ from GraphPage import GraphPage
 class Ui_MainWindow(object):
 
     def __init__(self):
+        self.search_text = None
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.perform_search)
         self.actionGroupColumns = None
         self.actionToggleFullScreen = None
         self.gridLayout_6 = None
@@ -318,11 +322,13 @@ class Ui_MainWindow(object):
             QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
     def handle_search(self, text):
+        self.search_text = text
+        self.timer.start(200)
+
+    def perform_search(self):
+        text = self.search_text.lower()
         for checkbox in self.checkboxes:
-            if text.lower() in checkbox.text().lower():
-                checkbox.setVisible(True)
-            else:
-                checkbox.setVisible(False)
+            checkbox.setVisible(text in checkbox.text().lower())
 
     def handleItemChanged(self, item):
         if item.isCheckable() and (item.checkState() == QtCore.Qt.Checked):
@@ -411,23 +417,27 @@ class Ui_MainWindow(object):
             )
 
     @staticmethod
-    def exportCSV(data=None):
+    def exportCSV(self):
         try:
-            if data is not None:
-                if data.empty:
-                    QMessageBox.warning(None, "Export CSV", "No data available.", QMessageBox.Ok)
-                else:
-                    filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", ".", "CSV Files (*.csv)")
+            if isinstance(self.data, pd.DataFrame):  # Check if self.data is a DataFrame
+                if not self.data.empty:
+                    filename = CSVHandler.browse_save_file()
                     if filename:
-                        CSVHandler.export_csv_file(filename, data)
-                        QMessageBox.information(None, "Export CSV", "CSV file exported successfully.", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(None, "No File Selected", "No file selected.", QMessageBox.Ok)
+                        CSVHandler.export_csv_file(filename, self.data)
+                        success_message = f"CSV file exported successfully as {os.path.basename(filename)}"
+                        print(success_message)
+                        QMessageBox.information(None, "CSV Export Success", success_message, QMessageBox.Ok)
+                else:
+                    error_message = "No data to export. Please load a CSV file first."
+                    print(error_message)
+                    QMessageBox.warning(None, "Export CSV Warning", error_message, QMessageBox.Ok)
             else:
-                QMessageBox.warning(None, "Export CSV", "No data available.", QMessageBox.Ok)
+                error_message = "No CSV file loaded. Please load a CSV file first."
+                print(error_message)
+                QMessageBox.warning(None, "Export CSV Warning", error_message, QMessageBox.Ok)
         except Exception as e:
-            error_message = f"Error: {str(e)}"
-            print(error_message)
+            error_message = f"No CSV file loaded. Please load a CSV file first."
+            print(f"Unexpected error: {str(e)}")
             QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
 
     def groupColumns(self):
@@ -445,7 +455,7 @@ class Ui_MainWindow(object):
                         numeric_columns = [col for col in numeric_columns if col != grouping_column]
                         if len(numeric_columns) > 0:
                             grouped_data = self.data.groupby(grouping_column)[numeric_columns]
-                            aggregated_data = grouped_data.mean()  # Replace 'mean' with the desired aggregation function
+                            aggregated_data = grouped_data.mean()  # Replace 'mean' desired aggregation function
 
                             self.data = aggregated_data
                             self.display_data(self.data)

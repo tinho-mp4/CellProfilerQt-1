@@ -5,12 +5,16 @@
 # Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QSize, QRect, Qt
+from PyQt5.QtCore import QSize, QRect, Qt, QTimer
 
 
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
+        self.search_text = None
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)  # Ensure it's a single shot timer
+        self.timer.timeout.connect(self.perform_search)
         self.setEnabled(True)
         self.setObjectName("graph_page")
         self.gridLayout_7 = QtWidgets.QGridLayout(self)
@@ -144,14 +148,14 @@ class GraphPage(QtWidgets.QWidget):
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
     def handleSearch(self, text):
+        self.search_text = text
+        self.timer.stop()
+        self.timer.start(200)
+
+    def perform_search(self):
+        text = self.search_text.lower()
         for checkbox in self.checkboxes:
-            checkbox.setVisible(text.lower() in checkbox.text().lower())
-
-            if checkbox.isVisible() and checkbox.isChecked():
-                checkbox.setVisible(True)  # Ensure the checkbox is visible if it matches the search text
-
-        # Update the size of the scroll area's contents to reflect the visibility changes
-        self.scrollAreaWidgetContents_2.adjustSize()
+            checkbox.setVisible(text in checkbox.text().lower())
 
     def generate_graph_handler(self):
         selected_columns = []
