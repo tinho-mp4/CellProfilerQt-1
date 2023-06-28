@@ -5,7 +5,19 @@
 # Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QSize, QRect, Qt, QTimer
+from PyQt5.QtCore import QSize, QRect, Qt, QTimer, QThread, pyqtSignal
+
+
+class LoadColumnsThread(QThread):
+    finished_loading = pyqtSignal(list)  # Signal emitted when loading finishes
+
+    def __init__(self, columns, *args, **kwargs):
+        super(LoadColumnsThread, self).__init__(*args, **kwargs)
+        self.columns = columns
+
+    def run(self):
+        # Here is where you would load your column data
+        self.finished_loading.emit(self.columns)
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -150,7 +162,7 @@ class GraphPage(QtWidgets.QWidget):
     def handleSearch(self, text):
         self.search_text = text
         self.timer.stop()
-        self.timer.start(200)
+        self.timer.start(500)
 
     def perform_search(self):
         text = self.search_text.lower()
