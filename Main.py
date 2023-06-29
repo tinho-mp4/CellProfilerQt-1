@@ -35,6 +35,7 @@ from GraphPage import GraphPage
 class UiMainWindow(object):
 
     def __init__(self):
+        self.original_data = None
         self.user_groups = {"Default": []}
         self.menuGroupColumns = None
         self.actionAdd = None
