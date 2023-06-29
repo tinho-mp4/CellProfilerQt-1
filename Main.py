@@ -5,13 +5,22 @@
 # Last Modified: June 26, 2023 (Juned - Fixed NormalizeData)
 
 import os
-import math
-
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow, \
-    QDialogButtonBox, QVBoxLayout, QComboBox, QLabel, QDialog, QInputDialog
+from PyQt5.QtWidgets import (
+    QFileDialog,
+    QMessageBox,
+    QApplication,
+    QMainWindow,
+    QDialogButtonBox,
+    QVBoxLayout,
+    QComboBox,
+    QLabel,
+    QDialog,
+    QTableWidget,
+    QTableWidgetItem,
+)
 
 import pandas as pd
 import numpy as np
@@ -21,13 +30,13 @@ from SettingsWindow import SettingWindow
 from GraphPage import GraphPage
 
 
-class Ui_MainWindow(object):
+class UiMainWindow(object):
 
     def __init__(self):
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.perform_search)
+        self.timer.timeout.connect(self.performSearch)
         self.actionGroupColumns = None
         self.actionToggleFullScreen = None
         self.gridLayout_6 = None
@@ -160,7 +169,7 @@ class Ui_MainWindow(object):
         self.searchbar.setObjectName("searchbar")
         self.check_all_horizontal_layout.addWidget(self.searchbar)
         self.gridLayout_3.addLayout(self.check_all_horizontal_layout, 1, 0, 1, 1)
-        self.searchbar.textChanged.connect(self.handle_search)
+        self.searchbar.textChanged.connect(self.handleSearch)
         self.searchbar.setEnabled(False)
 
         # checkboxes scroll area setup
@@ -256,9 +265,9 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
 
-        self.types_button.clicked.connect(lambda: self.on_name_types_clicked(self.stacked_pages))
-        self.graph_button.clicked.connect(lambda: self.on_graph_clicked(self.stacked_pages))
-        self.settings_button.clicked.connect(self.on_settings_clicked)
+        self.types_button.clicked.connect(lambda: self.onNamesTypesClicked(self.stacked_pages))
+        self.graph_button.clicked.connect(lambda: self.onGraphClicked(self.stacked_pages))
+        self.settings_button.clicked.connect(self.onSettingsClicked)
 
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
@@ -275,8 +284,8 @@ class Ui_MainWindow(object):
                     if plate_column:
                         self.data[plate_column].fillna('Unknown',
                                                        inplace=True)  # Replace NaN with 'Unknown' label for plate
-                    self.display_data(self.data)
-                    self.create_checkboxes(self.data.columns)
+                    self.displayData(self.data)
+                    self.createCheckboxes(self.data.columns)
                     self.Check_all_box.setChecked(True)
                 else:
                     error_message = "No data in the file."
@@ -287,7 +296,7 @@ class Ui_MainWindow(object):
             print(error_message)
             QMessageBox.critical(None, "CSV Loading Error", error_message, QMessageBox.Ok)
 
-    def create_checkboxes(self, columns):
+    def createCheckboxes(self, columns):
         self.checkboxes = []
         for i in range(self.gridLayout.count()):
             widget = self.gridLayout.itemAt(i).widget()
@@ -297,14 +306,14 @@ class Ui_MainWindow(object):
         for i, column in enumerate(columns):
             checkbox = QtWidgets.QCheckBox(column, self.scrollAreaWidgetContents)
             checkbox.setChecked(True)
-            checkbox.stateChanged.connect(lambda state, x=i: self.toggle_column(x, state))
+            checkbox.stateChanged.connect(lambda state, x=i: self.toggleColumn(x, state))
             self.gridLayout.addWidget(checkbox, i, 0, 1, 1)
             self.checkboxes.append(checkbox)
 
-    def toggle_column(self, column, state):
+    def toggleColumn(self, column, state):
         self.tableView.setColumnHidden(column, not bool(state))
 
-    def display_data(self, data):
+    def displayData(self, data):
         try:
             if data is not None:
                 self.model.clear()
@@ -321,11 +330,11 @@ class Ui_MainWindow(object):
         except Exception as e:
             QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
-    def handle_search(self, text):
+    def handleSearch(self, text):
         self.search_text = text
         self.timer.start(200)
 
-    def perform_search(self):
+    def performSearch(self):
         text = self.search_text.lower()
         for checkbox in self.checkboxes:
             checkbox.setVisible(text in checkbox.text().lower())
@@ -376,8 +385,8 @@ class Ui_MainWindow(object):
                             else:
                                 self.data[column] = (self.data[column] - column_mean) / column_std
 
-                    self.display_data(self.data)
-                    self.create_checkboxes(self.data.columns)
+                    self.displayData(self.data)
+                    self.createCheckboxes(self.data.columns)
                     QMessageBox.information(
                         None, "Normalization Complete", "Data normalized successfully.", QMessageBox.Ok
                     )
@@ -398,7 +407,7 @@ class Ui_MainWindow(object):
         try:
             if self.data is not None:
                 self.data = self.data.dropna()  # Remove rows with missing values
-                self.display_data(self.data)
+                self.displayData(self.data)
                 QMessageBox.information(
                     None, "N/A Removal", "N/A entries removed successfully.", QMessageBox.Ok
                 )
@@ -419,68 +428,55 @@ class Ui_MainWindow(object):
     @staticmethod
     def exportCSV(self):
         try:
-            if isinstance(self.data, pd.DataFrame):  # Check if self.data is a DataFrame
-                if not self.data.empty:
+            if self.data is not None:
+                selected_columns = []
+                for checkbox in self.checkboxes:
+                    if checkbox.isChecked():
+                        selected_columns.append(checkbox.text())
+
+                if len(selected_columns) > 0:
+                    selected_data = self.data[selected_columns]
                     filename = CSVHandler.browse_save_file()
                     if filename:
-                        CSVHandler.export_csv_file(filename, self.data)
-                        success_message = f"CSV file exported successfully as {os.path.basename(filename)}"
+                        CSVHandler.export_csv_file(filename, selected_data)
+                        success_message = f"Selected channels exported successfully to {os.path.basename(filename)}"
                         print(success_message)
-                        QMessageBox.information(None, "CSV Export Success", success_message, QMessageBox.Ok)
+                        QMessageBox.information(None, "Export Success", success_message, QMessageBox.Ok)
                 else:
-                    error_message = "No data to export. Please load a CSV file first."
-                    print(error_message)
-                    QMessageBox.warning(None, "Export CSV Warning", error_message, QMessageBox.Ok)
+                    QMessageBox.warning(None, "Export CSV Warning", "No channels selected.", QMessageBox.Ok)
             else:
-                error_message = "No CSV file loaded. Please load a CSV file first."
-                print(error_message)
-                QMessageBox.warning(None, "Export CSV Warning", error_message, QMessageBox.Ok)
+                QMessageBox.warning(None, "Export CSV Warning", "No data loaded.", QMessageBox.Ok)
         except Exception as e:
-            error_message = f"No CSV file loaded. Please load a CSV file first."
-            print(f"Unexpected error: {str(e)}")
+            error_message = f"Unexpected error: {str(e)}"
+            print(error_message)
             QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
 
     def groupColumns(self):
         try:
-            if self.data is not None and not self.data.empty:
-                column_dialog = QInputDialog()
-                column_dialog.setWindowTitle("Select Grouping Column")
-                column_dialog.setLabelText("Select a column to group by:")
-                column_dialog.setComboBoxItems(self.data.columns)
-                column_dialog.setComboBoxEditable(False)
-                if column_dialog.exec_() == QInputDialog.Accepted:
-                    grouping_column = column_dialog.textValue()
-                    if grouping_column in self.data.columns:
-                        numeric_columns = self.data.select_dtypes(include=np.number).columns
-                        numeric_columns = [col for col in numeric_columns if col != grouping_column]
-                        if len(numeric_columns) > 0:
-                            grouped_data = self.data.groupby(grouping_column)[numeric_columns]
-                            aggregated_data = grouped_data.mean()  # Replace 'mean' desired aggregation function
-
-                            self.data = aggregated_data
-                            self.display_data(self.data)
-                            self.create_checkboxes(self.data.columns)
-
-                            QMessageBox.information(None, "Group Columns", "Columns grouped successfully.",
-                                                    QMessageBox.Ok)
-                        else:
-                            QMessageBox.warning(None, "Group Columns", "No numeric columns available for grouping.",
-                                                QMessageBox.Ok)
+            if self.data is not None:
+                group_columns_dialog = GroupColumnsDialog(self.data.columns)
+                if group_columns_dialog.exec_() == QDialog.Accepted:
+                    grouped_columns = group_columns_dialog.getGroupedColumns()
+                    if grouped_columns:
+                        grouped_data = self.data[grouped_columns].copy()
+                        grouped_data_columns = [f"{col} ({grouped_columns[i]})" for i, col in
+                                                enumerate(grouped_data.columns)]
+                        grouped_data.columns = grouped_data_columns
+                        self.displayData(grouped_data)
+                        QMessageBox.information(
+                            None, "Group Columns", "Columns have been grouped.", QMessageBox.Ok
+                        )
                     else:
-                        QMessageBox.warning(None, "Group Columns", f"Column '{grouping_column}' not found in data.",
-                                            QMessageBox.Ok)
+                        QMessageBox.warning(None, "Group Columns", "No columns selected.", QMessageBox.Ok)
             else:
-                QMessageBox.warning(None, "Group Columns", "No data available. Please load a CSV file first.",
-                                    QMessageBox.Ok)
+                QMessageBox.warning(None, "Group Columns", "No data loaded.", QMessageBox.Ok)
         except Exception as e:
-            error_message = f"Error while grouping columns: {e}"
-            print(error_message)
-            QMessageBox.critical(None, "Group Columns Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Group Columns Error", f"Error during column grouping: {e}", QMessageBox.Ok)
 
-    def on_name_types_clicked(self, stacked_pages):
+    def onNamesTypesClicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.names_types_page)
 
-    def on_graph_clicked(self, stacked_pages):
+    def onGraphClicked(self, stacked_pages):
         if self.data is not None:  # Check if data is loaded
             stacked_pages.setCurrentWidget(self.graph_page)
             self.graph_page.display_data_columns(self.data.columns)
@@ -491,7 +487,7 @@ class Ui_MainWindow(object):
             message_box.setText("No CSV data loaded. Please load a CSV file before accessing the Graph.")
             message_box.exec_()
 
-    def on_settings_clicked(self):
+    def onSettingsClicked(self):
         self.settings_window = SettingWindow()
         self.settings_window.show()
 
@@ -515,14 +511,14 @@ class Ui_MainWindow(object):
 class GroupColumnsDialog(QDialog):
     def __init__(self, columns, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Group Columns")
+        self.setWindowTitle("Group Channels")
         self.columns = columns
         self.grouped_columns = []
 
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        label = QLabel("Select columns to group:")
+        label = QLabel("Select channels to group:")
         layout.addWidget(label)
 
         self.column_combobox = QComboBox()
@@ -551,7 +547,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = UiMainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
