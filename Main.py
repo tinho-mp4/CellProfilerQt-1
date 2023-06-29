@@ -20,6 +20,8 @@ from PyQt5.QtWidgets import (
     QDialog,
     QTableWidget,
     QTableWidgetItem,
+    QAction,
+    QMenu,
 )
 
 import pandas as pd
@@ -33,6 +35,9 @@ from GraphPage import GraphPage
 class UiMainWindow(object):
 
     def __init__(self):
+        self.user_groups = {"Default": []}
+        self.menuGroupColumns = None
+        self.actionAdd = None
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
@@ -239,13 +244,28 @@ class UiMainWindow(object):
         self.actionRemoveNA.triggered.connect(self.removeNA)
         self.menuEdit.addAction(self.actionRemoveNA)
 
-        self.menuEdit.addSeparator()  # Add separator before "Group Columns"
+        self.menuEdit.addSeparator()
 
-        self.actionGroupColumns = QtWidgets.QAction(Main_window)
-        self.actionGroupColumns.setObjectName("actionGroupColumns")
-        self.actionGroupColumns.setText("Group Columns")
-        self.actionGroupColumns.triggered.connect(self.groupColumns)
-        self.menuEdit.addAction(self.actionGroupColumns)
+        self.actionAdd = QtWidgets.QAction("Add", self.centralwidget)
+        self.actionAdd.triggered.connect(self.addGroup)
+
+        self.menuGroupColumns = QtWidgets.QMenu(self.centralwidget)
+        self.menuGroupColumns.setTitle("Group Columns")
+
+        self.user_groups = {"Default": []}
+
+        for group in self.user_groups:
+            action = QtWidgets.QAction(group, self.centralwidget)
+            action.triggered.connect(lambda checked, grp=group: self.selectUserGroup(grp))
+            self.menuGroupColumns.addAction(action)
+
+        self.menuGroupColumns.addAction(self.actionAdd)
+
+        self.menuEdit.addMenu(self.menuGroupColumns)
+
+        self.menuGroupColumns.addSeparator()
+
+        self.menuEdit.addMenu(self.menuGroupColumns)
 
         self.actionExit = QtWidgets.QAction(Main_window)
         self.actionExit.setObjectName("actionExit")
@@ -278,6 +298,9 @@ class UiMainWindow(object):
             if filename:
                 self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
                 self.data = CSVHandler.loadCSVFile(filename)
+                self.original_data = self.data.copy()
+                self.user_groups["Default"] = self.original_data.columns.tolist()
+                self.updateGroupsMenu()
                 if self.data is not None and not self.data.empty:
                     # Handle missing plate information for 'Plate' column (case-insensitive)
                     plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
@@ -326,7 +349,8 @@ class UiMainWindow(object):
                     for j in range(data.shape[1]):
                         item = QStandardItem(str(data.iat[i, j]))
                         self.model.setItem(i, j, item)
-
+            else:
+                self.model.clear()  # Clear the model if data is None
         except Exception as e:
             QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
@@ -443,33 +467,53 @@ class UiMainWindow(object):
             print(error_message)
             QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
 
-    def groupColumns(self):
-        try:
-            if self.data is not None:
-                group_columns_dialog = GroupColumnsDialog(self.data.columns)
-                if group_columns_dialog.exec_() == QDialog.Accepted:
-                    grouped_columns = group_columns_dialog.getGroupedColumns()
-                    if grouped_columns:
-                        grouped_data = self.data[grouped_columns].copy()
-                        grouped_data_columns = [f"{col} ({grouped_columns[i]})" for i, col in
-                                                enumerate(grouped_data.columns)]
-                        grouped_data.columns = grouped_data_columns
-                        self.displayData(grouped_data)
-                        QMessageBox.information(
-                            None, "Group Columns", "Columns have been grouped.", QMessageBox.Ok
-                        )
-                    else:
-                        QMessageBox.warning(None, "Group Columns", "No columns selected.", QMessageBox.Ok)
+    def addActionToGroupMenu(self, group):
+        action = QAction(group, self.centralwidget)
+        action.setObjectName(f"userGroup_{group}")
+        action.setText(group)
+        action.triggered.connect(lambda grp=group: self.selectUserGroup(grp))
+        self.menuGroupColumns.addAction(action)
+
+    def addGroup(self):
+        group_columns_dialog = GroupColumnsDialog(self.centralwidget, self.data.columns, self.user_groups)
+        if group_columns_dialog.exec_() == QDialog.Accepted:
+            new_group_name, grouped_columns = group_columns_dialog.getGroupedColumns()
+            if new_group_name not in self.user_groups:
+                self.user_groups[new_group_name] = grouped_columns
+                self.addActionToGroupMenu(new_group_name)
             else:
-                QMessageBox.warning(None, "Group Columns", "No data loaded.", QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.critical(None, "Group Columns Error", f"Error during column grouping: {e}", QMessageBox.Ok)
+                QMessageBox.warning(None, "Add Group", "This group already exists.", QMessageBox.Ok)
+
+    def selectUserGroup(self, group):
+        if group == "Default" and self.data is not None:
+            QMessageBox.warning(None, "Select Group", "The 'Default' group already exists.", QMessageBox.Ok)
+            return
+
+        if group in self.user_groups:
+            selected_columns = self.user_groups[group]
+            if set(selected_columns).issubset(self.original_data.columns):
+                self.data = self.original_data[selected_columns]
+                self.displayData(self.data)
+                self.createCheckboxes(self.data.columns)
+            else:
+                QMessageBox.warning(None, "Select Group",
+                                    "Some of the grouped columns are not present in the original data.", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(None, "Select Group", "This group doesn't exist.", QMessageBox.Ok)
+
+    def updateGroupsMenu(self):
+        self.menuGroupColumns.clear()
+        for group in self.user_groups:
+            action = QtWidgets.QAction(group, self.centralwidget)
+            action.triggered.connect(lambda checked, grp=group: self.selectUserGroup(grp))
+            self.menuGroupColumns.addAction(action)
+        self.menuGroupColumns.addAction(self.actionAdd)
 
     def onNamesTypesClicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.names_types_page)
 
     def onGraphClicked(self, stacked_pages):
-        if self.data is not None:  # Check if data is loaded
+        if self.data is not None:
             stacked_pages.setCurrentWidget(self.graph_page)
             self.graph_page.display_data_columns(self.data.columns)
         else:
@@ -500,25 +544,31 @@ class UiMainWindow(object):
         self.actionExit.setText(translate("MainWindow", "Exit"))
 
 
-class GroupColumnsDialog(QDialog):
-    def __init__(self, columns, parent=None):
-        super().__init__(parent)
+class GroupColumnsDialog(QtWidgets.QDialog):
+    def __init__(self, parent, columns, user_groups):
+        super(GroupColumnsDialog, self).__init__(parent)
         self.setWindowTitle("Group Channels")
         self.columns = columns
+        self.user_groups = user_groups
         self.grouped_columns = []
 
-        layout = QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
 
-        label = QLabel("Select channels to group:")
+        label = QtWidgets.QLabel("Select channels to group:")
         layout.addWidget(label)
 
-        self.column_combobox = QComboBox()
+        self.column_combobox = QtWidgets.QComboBox()
         self.column_combobox.addItems(self.columns)
         layout.addWidget(self.column_combobox)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        add_button = button_box.addButton("Add", QDialogButtonBox.ActionRole)
+        self.group_combobox = QtWidgets.QComboBox()
+        self.group_combobox.addItem("Default")
+        self.group_combobox.addItems(self.user_groups)
+        layout.addWidget(self.group_combobox)
+
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        add_button = button_box.addButton("Add", QtWidgets.QDialogButtonBox.ActionRole)
         add_button.clicked.connect(self.addColumn)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -530,7 +580,9 @@ class GroupColumnsDialog(QDialog):
             self.grouped_columns.append(column)
 
     def getGroupedColumns(self):
-        return self.grouped_columns
+        selected_group = self.group_combobox.currentText()
+        print(f'Grouped columns: {self.grouped_columns}, type: {type(self.grouped_columns)}')  # debug print
+        return self.grouped_columns if isinstance(self.grouped_columns, list) else [], selected_group
 
 
 if __name__ == "__main__":
