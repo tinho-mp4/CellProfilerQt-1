@@ -274,10 +274,10 @@ class UiMainWindow(object):
 
     def loadCSV(self):
         try:
-            filename = CSVHandler.browse_file()
+            filename = CSVHandler.browseFile()
             if filename:
                 self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
-                self.data = CSVHandler.load_csv_file(filename)
+                self.data = CSVHandler.loadCSVFile(filename)
                 if self.data is not None and not self.data.empty:
                     # Handle missing plate information for 'Plate' column (case-insensitive)
                     plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
@@ -425,29 +425,21 @@ class UiMainWindow(object):
                 None, "N/A Removal Error", error_message, QMessageBox.Ok
             )
 
-    @staticmethod
     def exportCSV(self):
         try:
             if self.data is not None:
-                selected_columns = []
-                for checkbox in self.checkboxes:
-                    if checkbox.isChecked():
-                        selected_columns.append(checkbox.text())
-
-                if len(selected_columns) > 0:
-                    selected_data = self.data[selected_columns]
-                    filename = CSVHandler.browse_save_file()
-                    if filename:
-                        CSVHandler.export_csv_file(filename, selected_data)
-                        success_message = f"Selected channels exported successfully to {os.path.basename(filename)}"
-                        print(success_message)
-                        QMessageBox.information(None, "Export Success", success_message, QMessageBox.Ok)
+                filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", "", "CSV Files (*.csv)")
+                if filename:
+                    self.data.to_csv(filename, index=False)
+                    success_message = f"CSV file exported successfully as {os.path.basename(filename)}"
+                    print(success_message)
+                    QMessageBox.information(None, "CSV Export Success", success_message, QMessageBox.Ok)
                 else:
-                    QMessageBox.warning(None, "Export CSV Warning", "No channels selected.", QMessageBox.Ok)
+                    QMessageBox.warning(None, "Export CSV Warning", "No file selected.", QMessageBox.Ok)
             else:
-                QMessageBox.warning(None, "Export CSV Warning", "No data loaded.", QMessageBox.Ok)
+                QMessageBox.warning(None, "Export CSV Warning", "No CSV file loaded.", QMessageBox.Ok)
         except Exception as e:
-            error_message = f"Unexpected error: {str(e)}"
+            error_message = f"Error while exporting CSV: {e}"
             print(error_message)
             QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
 
