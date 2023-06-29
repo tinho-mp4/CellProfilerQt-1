@@ -8,7 +8,7 @@ import os
 import math
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow, \
     QDialogButtonBox, QVBoxLayout, QComboBox, QLabel, QDialog, QInputDialog
@@ -21,35 +21,9 @@ from SettingsWindow import SettingWindow
 from GraphPage import GraphPage
 
 
-class LoadGraphThread(QThread):
-    finished_loading = pyqtSignal(object)
-
-    def __init__(self, *args, **kwargs):
-        super(LoadGraphThread, self).__init__(*args, **kwargs)
-        self.graph_page = None
-
-    def run(self):
-        self.graph_page = GraphPage()
-        self.finished_loading.emit(self.graph_page)
-
-
-class LoadCSVThread(QThread):
-    finished_loading = pyqtSignal(pd.DataFrame)  # Signal emitted when loading finishes
-
-    def __init__(self, filename, *args, **kwargs):
-        super(LoadCSVThread, self).__init__(*args, **kwargs)
-        self.filename = filename
-
-    def run(self):
-        # Load the CSV data using pandas
-        df = pd.read_csv(self.filename)
-        self.finished_loading.emit(df)
-
-
 class Ui_MainWindow(object):
+
     def __init__(self):
-        self.load_thread = None
-        self.graph_page = None
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
@@ -289,41 +263,29 @@ class Ui_MainWindow(object):
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
 
-    def load_graph_page(self):
-        if self.graph_page is None:  # GraphPage is not yet loaded
-            self.load_thread = LoadGraphThread()
-            self.load_thread.finished_loading.connect(self.on_finished_loading)
-            self.load_thread.start()
-        else:  # GraphPage is already loaded, just switch to it
-            index = self.stacked_pages.indexOf(self.graph_page)
-            self.stacked_pages.setCurrentIndex(index)
-
-    def on_finished_loading(self, graph_page):
-        self.graph_page = graph_page
-        self.stacked_pages.addWidget(self.graph_page)
-        index = self.stacked_pages.indexOf(self.graph_page)
-        self.stacked_pages.setCurrentIndex(index)
-
     def loadCSV(self):
-        filename = CSVHandler.browse_file()
-        if filename:
-            self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
-            self.load_thread = LoadCSVThread(filename)
-            self.load_thread.finished_loading.connect(self.onFinishedLoading)
-            self.load_thread.start()
-
-    def onFinishedLoading(self, df):
-        if df is not None and not df.empty:
-            plate_column = next((col for col in df.columns if col.lower() == 'plate'), None)
-            if plate_column:
-                df[plate_column].fillna('Unknown', inplace=True)
-            self.display_data(df)
-            self.create_checkboxes(df.columns)
-            self.Check_all_box.setChecked(True)
-        else:
-            error_message = "No data in the file."
+        try:
+            filename = CSVHandler.browse_file()
+            if filename:
+                self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
+                self.data = CSVHandler.load_csv_file(filename)
+                if self.data is not None and not self.data.empty:
+                    # Handle missing plate information for 'Plate' column (case-insensitive)
+                    plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
+                    if plate_column:
+                        self.data[plate_column].fillna('Unknown',
+                                                       inplace=True)  # Replace NaN with 'Unknown' label for plate
+                    self.display_data(self.data)
+                    self.create_checkboxes(self.data.columns)
+                    self.Check_all_box.setChecked(True)
+                else:
+                    error_message = "No data in the file."
+                    print(error_message)
+                    QMessageBox.warning(None, "No Data", error_message, QMessageBox.Ok)
+        except Exception as e:
+            error_message = f"Error while loading CSV file: {e}"
             print(error_message)
-            QMessageBox.warning(None, "No Data", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "CSV Loading Error", error_message, QMessageBox.Ok)
 
     def create_checkboxes(self, columns):
         self.checkboxes = []
@@ -361,7 +323,7 @@ class Ui_MainWindow(object):
 
     def handle_search(self, text):
         self.search_text = text
-        self.timer.start(500)
+        self.timer.start(200)
 
     def perform_search(self):
         text = self.search_text.lower()
