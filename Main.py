@@ -254,6 +254,7 @@ class UiMainWindow(object):
         self.menuGroupColumns.setTitle("Group Columns")
 
         self.user_groups = {"Default": []}
+        self.menuGroupColumns.clear()
 
         for group in self.user_groups:
             action = QtWidgets.QAction(group, self.centralwidget)
@@ -481,7 +482,7 @@ class UiMainWindow(object):
             new_group_name, grouped_columns = group_columns_dialog.getGroupedColumns()
             if new_group_name not in self.user_groups:
                 self.user_groups[new_group_name] = grouped_columns
-                self.addActionToGroupMenu(new_group_name)
+                self.updateGroupsMenu()
             else:
                 QMessageBox.warning(None, "Add Group", "This group already exists.", QMessageBox.Ok)
 
@@ -504,11 +505,13 @@ class UiMainWindow(object):
 
     def updateGroupsMenu(self):
         self.menuGroupColumns.clear()
+
+        self.menuGroupColumns.addAction(self.actionAdd)
+
         for group in self.user_groups:
             action = QtWidgets.QAction(group, self.centralwidget)
             action.triggered.connect(lambda checked, grp=group: self.selectUserGroup(grp))
             self.menuGroupColumns.addAction(action)
-        self.menuGroupColumns.addAction(self.actionAdd)
 
     def onNamesTypesClicked(self, stacked_pages):
         stacked_pages.setCurrentWidget(self.names_types_page)
@@ -548,10 +551,11 @@ class UiMainWindow(object):
 class GroupColumnsDialog(QtWidgets.QDialog):
     def __init__(self, parent, columns, user_groups):
         super(GroupColumnsDialog, self).__init__(parent)
-        self.setWindowTitle("Group Channels")
+        self.setWindowTitle("Group Columns")
         self.columns = columns
         self.user_groups = user_groups
         self.grouped_columns = []
+        self.group_name = ""
 
         layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
@@ -564,13 +568,20 @@ class GroupColumnsDialog(QtWidgets.QDialog):
         layout.addWidget(self.column_combobox)
 
         self.group_combobox = QtWidgets.QComboBox()
-        self.group_combobox.addItem("Default")
+        self.group_combobox.addItem("Default 1")
+        self.group_combobox.addItem("Default 2")
         self.group_combobox.addItems(self.user_groups)
         layout.addWidget(self.group_combobox)
+
+        self.group_name_edit = QtWidgets.QLineEdit()
+        self.group_name_edit.setPlaceholderText("Enter group name")
+        layout.addWidget(self.group_name_edit)
 
         button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         add_button = button_box.addButton("Add", QtWidgets.QDialogButtonBox.ActionRole)
         add_button.clicked.connect(self.addColumn)
+        remove_button = button_box.addButton("Remove", QtWidgets.QDialogButtonBox.ActionRole)
+        remove_button.clicked.connect(self.removeGroup)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
@@ -580,19 +591,26 @@ class GroupColumnsDialog(QtWidgets.QDialog):
         if column not in self.grouped_columns:
             self.grouped_columns.append(column)
 
+    def removeGroup(self):
+        group = self.group_combobox.currentText()
+        if group in self.user_groups:
+            self.user_groups.pop(group)
+            self.group_combobox.removeItem(self.group_combobox.currentIndex())
+
     def getGroupedColumns(self):
-        selected_group = self.group_combobox.currentText()
-        print(f'Grouped columns: {self.grouped_columns}, type: {type(self.grouped_columns)}')  # debug print
-        return self.grouped_columns if isinstance(self.grouped_columns, list) else [], selected_group
+        self.group_name = self.group_name_edit.text()
+        return self.grouped_columns, self.group_name
+
+
+def main():
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Main_window = QtWidgets.QMainWindow()
+    ui = UiMainWindow()
+    ui.setupUi(Main_window)
+    Main_window.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    import sys
-    from PyQt5 import QtWidgets
-
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = UiMainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+    main()
