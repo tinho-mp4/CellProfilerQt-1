@@ -24,23 +24,23 @@ class CSVTableModel(QAbstractTableModel):
             return QColor(Qt.white)
         return QVariant()
 
-    def get_value(self, row, column):
+    def getValue(self, row, column):
         return self.data.iloc[row, column]
 
-    def get_row_data(self, row):
+    def getRowData(self, row):
         return self.data.iloc[row]
 
-    def get_column_data(self, column):
+    def getColumnData(self, column):
         return self.data.iloc[:, column]
 
 
-def browse_file():
+def browseFile():
     file_dialog = QFileDialog()
     filename, _ = file_dialog.getOpenFileName(None, "Open CSV file", "", "CSV Files (*.csv)")
     return filename
 
 
-def load_csv_file(filename):
+def loadCSVFile(filename):
     if filename:
         try:
             data = pd.read_csv(filename)
@@ -50,7 +50,7 @@ def load_csv_file(filename):
     return None
 
 
-def export_csv_file(filename, data):
+def exportCSVFile(filename, data):
     try:
         if filename:
             data.to_csv(filename, index=False)
