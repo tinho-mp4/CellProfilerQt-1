@@ -6,7 +6,6 @@
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, QRect, Qt, QTimer, QThread, pyqtSignal
-from sklearn.decomposition import PCA
 
 
 class LoadColumnsThread(QThread):
