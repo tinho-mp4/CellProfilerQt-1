@@ -3,7 +3,7 @@
 # Authors: Anush Varma, Juned Miah
 # Created: June 20, 2023,
 # Last Modified: June 26, 2023 (Juned - Fixed NormalizeData)
-
+import math
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QTimer
