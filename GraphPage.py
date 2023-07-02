@@ -8,18 +8,6 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, QRect, Qt, QTimer, QThread, pyqtSignal
 
 
-class LoadColumnsThread(QThread):
-    finished_loading = pyqtSignal(list)  # Signal emitted when loading finishes
-
-    def __init__(self, columns, *args, **kwargs):
-        super(LoadColumnsThread, self).__init__(*args, **kwargs)
-        self.columns = columns
-
-    def run(self):
-        # Here is where you would load your column data
-        self.finished_loading.emit(self.columns)
-
-
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
