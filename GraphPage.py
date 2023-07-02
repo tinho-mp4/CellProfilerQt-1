@@ -1,11 +1,9 @@
-# File: GraphPage.py
-# Description: CellProfiler user-friendly software for .csv data analysis, manipulation, and visualization.
-# Authors: Anush Varma, Juned Miah
-# Created: June 26, 2023,
-# Last Modified: June 26, 2023 (Juned - Fixed the search and check all for the GraphPage.py)
-
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, QRect, Qt, QTimer, QThread, pyqtSignal
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -13,7 +11,7 @@ class GraphPage(QtWidgets.QWidget):
         super(GraphPage, self).__init__()
         self.search_text = None
         self.timer = QtCore.QTimer()
-        self.timer.setSingleShot(True)  # Ensure it's a single shot timer
+        self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.perform_search)
         self.setEnabled(True)
         self.setObjectName("graph_page")
@@ -35,6 +33,7 @@ class GraphPage(QtWidgets.QWidget):
         self.check_all_box_2.setSizeIncrement(QtCore.QSize(0, 0))
         self.check_all_box_2.setObjectName("Check_all_box_2")
         self.check_all_box_2.setText("Check All")
+        self.check_all_box_2.setChecked(True)
         self.check_all_horizontal_layout_2.addWidget(self.check_all_box_2)
         self.searchbar_2 = QtWidgets.QLineEdit(self.graph_grid_frame)
         self.searchbar_2.setObjectName("searchbar_2")
@@ -163,5 +162,44 @@ class GraphPage(QtWidgets.QWidget):
             if checkbox.isChecked():
                 selected_columns.append(checkbox.text())
 
-        # Perform the graph generation using the selected columns
-        self.generate_graph_with_columns(selected_columns)
+        graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
+
+        dimensionality_reduction = ""
+        if self.PCA_radio_button.isChecked():
+            dimensionality_reduction = "PCA"
+        elif self.tSNE_radio_button.isChecked():
+            dimensionality_reduction = "t-SNE"
+        elif self.UMAP_radio_button.isChecked():
+            dimensionality_reduction = "UMAP"
+
+        # Perform the graph generation using the selected columns and options
+        generate_graph_with_columns(selected_columns, graph_type, dimensionality_reduction)
+
+    def generate_graph_with_columns(self, columns, graph_type, dimensionality_reduction):
+        # Perform the graph generation using the selected columns and options
+        data = self.data[columns]  # Retrieve the selected columns from the loaded data
+
+        if dimensionality_reduction == "PCA":
+            reducer = PCA(n_components=2)
+        elif dimensionality_reduction == "t-SNE":
+            reducer = TSNE(n_components=2)
+        elif dimensionality_reduction == "UMAP":
+            reducer = UMAP(n_components=2)
+        else:
+            return
+
+        reduced_data = reducer.fit_transform(data)
+
+        if graph_type == "scatter":
+            plt.scatter(reduced_data[:, 0], reduced_data[:, 1])
+            plt.xlabel("Component 1")
+            plt.ylabel("Component 2")
+            plt.title("Scatter Plot")
+            plt.show()
+        elif graph_type == "bar":
+            plt.bar(range(len(columns)), reduced_data)
+            plt.xlabel("Columns")
+            plt.ylabel("Values")
+            plt.title("Bar Chart")
+            plt.xticks(range(len(columns)), columns, rotation=90)
+            plt.show()

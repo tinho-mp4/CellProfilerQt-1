@@ -36,7 +36,11 @@ class CSVTableModel(QAbstractTableModel):
 
 def browseFile():
     file_dialog = QFileDialog()
-    filename, _ = file_dialog.getOpenFileName(None, "Open CSV file", "", "CSV Files (*.csv)")
+    options = QFileDialog.Options()
+    options |= QFileDialog.ReadOnly
+    filename, _ = file_dialog.getOpenFileName(None, "Open CSV file", "", "CSV Files (*.csv)", options=options)
+    directory = os.path.dirname(filename) if filename else ""
+    file_dialog.setDirectory(directory)
     return filename
 
 
