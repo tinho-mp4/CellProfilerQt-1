@@ -328,14 +328,16 @@ class UiMainWindow(object):
                 for column in data.columns:
                     item = QStandardItem(column)
                     item.setCheckable(True)
+                    item.setEditable(False)
                     self.model.setHorizontalHeaderItem(data.columns.get_loc(column), item)
 
                 for i in range(data.shape[0]):
                     for j in range(data.shape[1]):
                         item = QStandardItem(str(data.iat[i, j]))
+                        item.setEditable(False)
                         self.model.setItem(i, j, item)
             else:
-                self.model.clear()  # Clear the model if data is None
+                self.model.clear()
         except Exception as e:
             QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
