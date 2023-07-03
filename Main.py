@@ -459,9 +459,16 @@ class UiMainWindow(object):
     def exportCSV(self):
         try:
             if self.data is not None:
+                selected_columns = []
+                for checkbox in self.checkboxes:
+                    if checkbox.isChecked():
+                        selected_columns.append(checkbox.text())
+
+                exported_data = self.data[selected_columns].copy()
+
                 filename, _ = QFileDialog.getSaveFileName(None, "Export CSV", "", "CSV Files (*.csv)")
                 if filename:
-                    self.data.to_csv(filename, index=False)
+                    exported_data.to_csv(filename, index=False)
                     success_message = f"CSV file exported successfully as {os.path.basename(filename)}"
                     print(success_message)
                     QMessageBox.information(None, "CSV Export Success", success_message, QMessageBox.Ok)
