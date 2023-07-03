@@ -371,8 +371,17 @@ class UiMainWindow(object):
     def checkAll(self, state):
         self.Check_all_box.setEnabled(True)
         self.searchbar.setEnabled(True)
-        # Check or uncheck all checkboxes based on the state of the "Check All" checkbox
-        for checkbox in self.checkboxes:
+
+        # Determine the list of checkboxes to apply the "Check All" state to
+        checkboxes_to_check = self.checkboxes
+
+        if self.search_text:
+            # Apply "Check All" state only to the displayed search results
+            checkboxes_to_check = [checkbox for checkbox in checkboxes_to_check if
+                                   self.search_text.lower() in checkbox.text().lower()]
+
+        # Check or uncheck the selected checkboxes
+        for checkbox in checkboxes_to_check:
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
     def normalizeData(self):
