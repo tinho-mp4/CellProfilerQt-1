@@ -35,6 +35,9 @@ from GraphPage import GraphPage
 class UiMainWindow(object):
 
     def __init__(self):
+        self.actionRevertData = None
+        self.modifications_applied = False
+        self.original_data = None
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
@@ -243,6 +246,12 @@ class UiMainWindow(object):
 
         self.menuEdit.addSeparator()
 
+        self.actionRevertData = QtWidgets.QAction(Main_window)
+        self.actionRevertData.setObjectName("actionRevertData")
+        self.actionRevertData.setText("Revert to Original Data")
+        self.actionRevertData.triggered.connect(self.revertToOriginalData)
+        self.menuEdit.addAction(self.actionRevertData)
+
         self.actionExit = QtWidgets.QAction(Main_window)
         self.actionExit.setObjectName("actionExit")
         self.actionExit.setText("Exit")
@@ -271,15 +280,18 @@ class UiMainWindow(object):
     def loadCSV(self):
         try:
             filename = CSVHandler.browseFile()
+            self.data = CSVHandler.loadCSVFile(filename)
+            self.original_data = self.data.copy()
+            self.modifications_applied = False
+            self.updateRevertMenuState()
             if filename:
                 self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
                 self.data = CSVHandler.loadCSVFile(filename)
                 if self.data is not None and not self.data.empty:
-                    # Handle missing plate information for 'Plate' column (case-insensitive)
                     plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
                     if plate_column:
                         self.data[plate_column].fillna('Unknown',
-                                                       inplace=True)  # Replace NaN with 'Unknown' label for plate
+                                                       inplace=True)
                     self.displayData(self.data)
                     self.createCheckboxes(self.data.columns)
                     self.Check_all_box.setChecked(True)
@@ -363,6 +375,8 @@ class UiMainWindow(object):
 
     def normalizeData(self):
         try:
+            self.modifications_applied = True
+            self.updateRevertMenuState()
             if self.data is not None:
                 columns_to_normalize = [col for col in self.data.columns if
                                         col not in ['PLATE', 'Metadata_Compound_Plate']]
@@ -402,6 +416,8 @@ class UiMainWindow(object):
 
     def removeNA(self):
         try:
+            self.modifications_applied = True
+            self.updateRevertMenuState()
             if self.data is not None:
                 self.data = self.data.dropna()  # Remove rows with missing values
                 self.displayData(self.data)
@@ -421,6 +437,24 @@ class UiMainWindow(object):
             QMessageBox.critical(
                 None, "N/A Removal Error", error_message, QMessageBox.Ok
             )
+
+    def revertToOriginalData(self):
+        if self.modifications_applied:
+            self.data = self.original_data.copy()
+            self.displayData(self.data)
+            self.createCheckboxes(self.data.columns)
+            self.modifications_applied = False
+            self.updateRevertMenuState()
+
+            QMessageBox.information(None, "Revert to Original Data", "Successfully reverted to the original dataset.",
+                                    QMessageBox.Ok)
+        else:
+            QMessageBox.warning(None, "Revert Data Error",
+                                "No modifications applied. Use normalization or remove N/A entries first.",
+                                QMessageBox.Ok)
+
+    def updateRevertMenuState(self):
+        self.actionRevertData.setEnabled(self.modifications_applied)
 
     def exportCSV(self):
         try:
