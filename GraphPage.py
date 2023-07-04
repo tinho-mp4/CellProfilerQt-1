@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-import umap
+
 
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
