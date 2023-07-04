@@ -21,6 +21,7 @@ class GraphPage(QtWidgets.QWidget):
         self.gridLayout_4 = QtWidgets.QGridLayout(self.graph_grid_frame)
         self.gridLayout_4.setObjectName("gridLayout_4")
 
+
         # left side
         self.vertical_layout_graph_left = QtWidgets.QVBoxLayout()
         self.vertical_layout_graph_left.setObjectName("verticalLayout_4")
@@ -44,6 +45,9 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
+
+
+
 
         # right side
 
@@ -75,14 +79,18 @@ class GraphPage(QtWidgets.QWidget):
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
         self.vertical_layout_graph_right.addWidget(self.scrollArea_2)
 
+
         self.horizontal_layout_gernerate_button = QtWidgets.QHBoxLayout()
         self.horizontal_layout_gernerate_button.setObjectName("horizontal_layout_gernerate_button")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontal_layout_gernerate_button.addItem(spacerItem2)
 
         # generate button
         self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
         self.generate_graph.setObjectName("generate_graph")
         self.generate_graph.setText("Generate")
         self.horizontal_layout_gernerate_button.addWidget(self.generate_graph)
+
 
         # left side PCA.. Options
         self.graph_options = QtWidgets.QGridLayout()
@@ -108,16 +116,16 @@ class GraphPage(QtWidgets.QWidget):
         self.LDA_radio_button.setText("LDA")
         self.graph_options.addWidget(self.LDA_radio_button, 1, 1, 1, 1)
 
-        # spacers
-        spacer_item1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        spacer_item2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        spacer_item3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        spacer_item4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
 
-        self.vertical_layout_graph_left.addItem(spacer_item1)
-        self.horizontal_layout_gernerate_button.addItem(spacer_item2)
-        self.graph_options.addItem(spacer_item3, 2, 1, 1, 1)
-        self.graph_options.addItem(spacer_item4, 2, 0, 1, 1)
+
+        # spacers
+        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+
+        self.vertical_layout_graph_left.addItem(spacerItem1)
+        self.graph_options.addItem(spacerItem3, 2, 1, 1, 1)
+        self.graph_options.addItem(spacerItem4, 2, 0, 1, 1)
 
         # layouts
         self.gridLayout_4.addLayout(self.graph_options, 0, 2, 1, 1)
