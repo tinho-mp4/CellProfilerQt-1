@@ -5,31 +5,19 @@
 # Last Modified: June 26, 2023 (Juned - Fixed NormalizeData)
 import math
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QTimer
+import numpy as np
+import pandas as pd
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import (
     QFileDialog,
     QMessageBox,
-    QApplication,
-    QMainWindow,
-    QDialogButtonBox,
-    QVBoxLayout,
-    QComboBox,
-    QLabel,
-    QDialog,
-    QTableWidget,
-    QTableWidgetItem,
-    QAction,
-    QMenu,
 )
 
-import pandas as pd
-import numpy as np
-
 import CSVHandler
-from SettingsWindow import SettingWindow
 from GraphPage import GraphPage
+from SettingsWindow import SettingWindow
 
 
 class UiMainWindow(object):
