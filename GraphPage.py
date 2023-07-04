@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-
+import umap
 
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
@@ -173,7 +173,7 @@ class GraphPage(QtWidgets.QWidget):
             dimensionality_reduction = "UMAP"
 
         # Perform the graph generation using the selected columns and options
-        generate_graph_with_columns(selected_columns, graph_type, dimensionality_reduction)
+        self.generate_graph_with_columns(selected_columns, graph_type, dimensionality_reduction)
 
     def generate_graph_with_columns(self, columns, graph_type, dimensionality_reduction):
         # Perform the graph generation using the selected columns and options
@@ -184,7 +184,7 @@ class GraphPage(QtWidgets.QWidget):
         elif dimensionality_reduction == "t-SNE":
             reducer = TSNE(n_components=2)
         elif dimensionality_reduction == "UMAP":
-            reducer = UMAP(n_components=2)
+            reducer = umap.UMAP()
         else:
             return
 

@@ -47,8 +47,12 @@ def browseFile():
 def loadCSVFile(filename):
     if filename:
         try:
-            data = pd.read_csv(filename)
-            return data
+            data = pd.DataFrame()
+
+            chunk_size = 1000
+            chunk = pd.read_csv(filename, chunksize=chunk_size)
+            pd_df = pd.concat(chunk)
+            return pd_df
         except Exception as e:
             print(f"Error: {e}")
     return None
