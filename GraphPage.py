@@ -3,6 +3,7 @@ import umap
 from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from XaxisWindow import *
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -138,6 +139,7 @@ class GraphPage(QtWidgets.QWidget):
         self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
         self.searchbar_2.textChanged.connect(self.handleSearch)
         self.generate_graph.clicked.connect(self.generate_graph_handler)
+        self.x_axis_button.clicked.connect(lambda: self.x_axis_handler())
 
         self.checkboxes = []
 
@@ -215,3 +217,9 @@ class GraphPage(QtWidgets.QWidget):
             plt.title("Bar Chart")
             plt.xticks(range(len(columns)), columns, rotation=90)
             plt.show()
+
+    def x_axis_handler(self):
+        self.x_axis_window = XaxisWindow()
+        self.x_axis_window.show()
+
+
