@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import umap
 from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -9,6 +8,7 @@ from XaxisWindow import *
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
+        self.x_axis_window = None
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
@@ -21,7 +21,6 @@ class GraphPage(QtWidgets.QWidget):
         self.graph_grid_frame.setObjectName("graph_grid_frame")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.graph_grid_frame)
         self.gridLayout_4.setObjectName("gridLayout_4")
-
 
         # left side
         self.vertical_layout_graph_left = QtWidgets.QVBoxLayout()
@@ -46,9 +45,6 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
-
-
-
 
         # right side
 
@@ -80,18 +76,16 @@ class GraphPage(QtWidgets.QWidget):
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
         self.vertical_layout_graph_right.addWidget(self.scrollArea_2)
 
-
-        self.horizontal_layout_gernerate_button = QtWidgets.QHBoxLayout()
-        self.horizontal_layout_gernerate_button.setObjectName("horizontal_layout_gernerate_button")
+        self.horizontal_layout_generate_button = QtWidgets.QHBoxLayout()
+        self.horizontal_layout_generate_button.setObjectName("horizontal_layout_generate_button")
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontal_layout_gernerate_button.addItem(spacerItem2)
+        self.horizontal_layout_generate_button.addItem(spacerItem2)
 
         # generate button
         self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
         self.generate_graph.setObjectName("generate_graph")
         self.generate_graph.setText("Generate")
-        self.horizontal_layout_gernerate_button.addWidget(self.generate_graph)
-
+        self.horizontal_layout_generate_button.addWidget(self.generate_graph)
 
         # left side PCA.. Options
         self.graph_options = QtWidgets.QGridLayout()
@@ -117,8 +111,6 @@ class GraphPage(QtWidgets.QWidget):
         self.LDA_radio_button.setText("LDA")
         self.graph_options.addWidget(self.LDA_radio_button, 1, 1, 1, 1)
 
-
-
         # spacers
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -131,7 +123,7 @@ class GraphPage(QtWidgets.QWidget):
         # layouts
         self.gridLayout_4.addLayout(self.graph_options, 0, 2, 1, 1)
         self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
-        self.vertical_layout_graph_right.addLayout(self.horizontal_layout_gernerate_button)
+        self.vertical_layout_graph_right.addLayout(self.horizontal_layout_generate_button)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 3, 1, 1)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
 
@@ -221,5 +213,3 @@ class GraphPage(QtWidgets.QWidget):
     def x_axis_handler(self):
         self.x_axis_window = XaxisWindow()
         self.x_axis_window.show()
-
-
