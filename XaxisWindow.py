@@ -73,10 +73,6 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
 
-
-
-
-
     def retranslateUi(self):
         translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(translate("MainWindow", "MainWindow"))
