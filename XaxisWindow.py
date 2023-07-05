@@ -25,6 +25,19 @@ class AutoCompletingComboBox(QComboBox):
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.top_combo_box = None
+        self.from_label = None
+        self.top_horizontal_layout = None
+        self.top_vertical_layout = None
+        self.bottom_combobox = None
+        self.select_column_label = None
+        self.bottom_horizontal_layout = None
+        self.bottom_vertical_layout = None
+        self.middle_combobox = None
+        self.select_values_label = None
+        self.middle_vertical_layout = None
+        self.middle_horizontal_layout = None
+        self.gridLayout_2 = None
         self.setObjectName("x_axis_window")
         self.setFixedSize(550, 220)
         self.centralwidget = QtWidgets.QWidget(self)
@@ -102,7 +115,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(translate("MainWindow", "MainWindow"))
         self.select_values_label.setText(translate("MainWindow", "Select values of"))
-        self.select_column_label.setText(translate("MainWindow", "select column"))
+        self.select_column_label.setText(translate("MainWindow", "Select column"))
         self.from_label.setText(translate("MainWindow", "From"))
 
 
