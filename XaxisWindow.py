@@ -1,5 +1,26 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
+
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QComboBox, QCompleter
+
+
+class AutoCompletingComboBox(QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.lineEdit().setAlignment(Qt.AlignLeft)
+        self.setCompleter(QCompleter(self.model()))
+        self.lineEdit().setCompleter(self.completer())
+        self.setInsertPolicy(QComboBox.NoInsert)
+
+    def addItemToComboBox(self, item):
+        super().addItem(item)
+        self.completer().setModel(self.model())
+
+
+
+
 
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -9,6 +30,9 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
+        self.top_combo_box = None
+        self.middle_combobox = None
+        self.bottom_combobox = None
         self.setupUi()
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -23,7 +47,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.select_values_label = QtWidgets.QLabel(self.centralwidget)
         self.select_values_label.setObjectName("select_values_label")
         self.middle_horizontal_layout.addWidget(self.select_values_label)
-        self.middle_combobox = QtWidgets.QComboBox(self.centralwidget)
+        self.middle_combobox = AutoCompletingComboBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -41,7 +65,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.select_column_label = QtWidgets.QLabel(self.centralwidget)
         self.select_column_label.setObjectName("select_column_label")
         self.bottom_horizontal_layout.addWidget(self.select_column_label)
-        self.bottom_combobox = QtWidgets.QComboBox(self.centralwidget)
+        self.bottom_combobox = AutoCompletingComboBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -59,7 +83,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.from_label = QtWidgets.QLabel(self.centralwidget)
         self.from_label.setObjectName("from_label")
         self.top_horizontal_layout.addWidget(self.from_label)
-        self.top_combo_box = QtWidgets.QComboBox(self.centralwidget)
+        self.top_combo_box = AutoCompletingComboBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -73,12 +97,14 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
 
+
     def retranslateUi(self):
         translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(translate("MainWindow", "MainWindow"))
         self.select_values_label.setText(translate("MainWindow", "Select values of"))
         self.select_column_label.setText(translate("MainWindow", "select column"))
         self.from_label.setText(translate("MainWindow", "From"))
+
 
 
 if __name__ == "__main__":

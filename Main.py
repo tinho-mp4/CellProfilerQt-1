@@ -486,7 +486,10 @@ class UiMainWindow(object):
     def onGraphClicked(self, stacked_pages):
         if self.data is not None:
             stacked_pages.setCurrentWidget(self.graph_page)
+            self.graph_page.set_table_data_columns(self.data.columns)
             self.graph_page.display_data_columns(self.data.columns)
+
+
         else:
             message_box = QMessageBox()
             message_box.setIcon(QMessageBox.Warning)
