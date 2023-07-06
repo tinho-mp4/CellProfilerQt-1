@@ -22,6 +22,7 @@ class AutoCompletingComboBox(QComboBox):
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.items = set()
         self.data_frame = None
         self.top_combo_box = None
         self.from_label = None
@@ -131,12 +132,18 @@ class XaxisWindow(QtWidgets.QMainWindow):
 
     def fillMiddleComboBox(self):
         self.middle_combobox.clear()
-        self.middle_combobox.setDuplicatesEnabled(True)
         text = self.top_combo_box.currentText()
         column_values = self.data_frame[text]
         for value in column_values:
-            if value is not None:
+            if value not in self.items:
+                self.items.add(value)
                 self.middle_combobox.addItemToComboBox(str(value))
+
+    # def getComboBoxItems(self):
+    #     for item in range(self.middle_combobox.count()):
+    #         self.items.add(self.middle_combobox.itemText(item))
+    #     return self.items
+
 
     def set_table_data_frame(self, data):
         self.data_frame = data
