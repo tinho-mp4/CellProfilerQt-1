@@ -9,6 +9,7 @@ from XaxisWindow import *
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
+        self.data_frame = None
         self.data_columns = None
         self.x_axis_window = None
         self.search_text = None
@@ -220,11 +221,13 @@ class GraphPage(QtWidgets.QWidget):
 
     def x_axis_handler(self):
         self.x_axis_window = XaxisWindow()
+        self.x_axis_window.set_table_data_frame(self.data_frame)
         for column in self.data_columns:
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
         self.x_axis_window.show()
 
     def set_table_data_columns(self, columns):
         self.data_columns = columns
-
+    def set_table_data_frame(self, data_frame):
+        self.data_frame = data_frame
 

@@ -19,12 +19,10 @@ class AutoCompletingComboBox(QComboBox):
         self.completer().setModel(self.model())
 
 
-
-
-
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.data_frame = None
         self.top_combo_box = None
         self.from_label = None
         self.top_horizontal_layout = None
@@ -107,9 +105,21 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.top_vertical_layout.addLayout(self.top_horizontal_layout)
         self.gridLayout_2.addLayout(self.top_vertical_layout, 2, 0, 1, 1)
 
+        self.save_vertical_layout = QtWidgets.QVBoxLayout()
+        self.save_vertical_layout.setObjectName("save_vertical_layout")
+        self.save_horizontal_layout = QtWidgets.QHBoxLayout()
+        self.save_horizontal_layout.setObjectName("save_horizontal_layout")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.save_horizontal_layout.addItem(spacerItem)
+        self.save_button = QtWidgets.QPushButton(self.centralwidget)
+        self.save_button.setObjectName("Save")
+        self.save_horizontal_layout.addWidget(self.save_button)
+        self.save_vertical_layout.addLayout(self.save_horizontal_layout)
+        self.gridLayout_2.addLayout(self.save_vertical_layout, 6, 0, 1, 1)
+
         self.setCentralWidget(self.centralwidget)
 
-
+        self.top_combo_box.activated.connect(self.fillMiddleComboBox)
 
     def retranslateUi(self):
         translate = QtCore.QCoreApplication.translate
@@ -117,11 +127,22 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.select_values_label.setText(translate("MainWindow", "Select values of"))
         self.select_column_label.setText(translate("MainWindow", "Select column"))
         self.from_label.setText(translate("MainWindow", "From"))
+        self.save_button.setText(translate("MainWindow", "Save"))
 
+    def fillMiddleComboBox(self):
+        self.middle_combobox.clear()
+        self.middle_combobox.setDuplicatesEnabled(True)
+        text = self.top_combo_box.currentText()
+        column_values = self.data_frame[text]
+        for value in column_values:
+            if value is not None:
+                self.middle_combobox.addItemToComboBox(str(value))
+
+    def set_table_data_frame(self, data):
+        self.data_frame = data
 
 
 if __name__ == "__main__":
-
     app = QtWidgets.QApplication(sys.argv)
     x_axis_window = XaxisWindow()
     x_axis_window.show()
