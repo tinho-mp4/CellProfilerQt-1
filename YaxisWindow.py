@@ -19,10 +19,10 @@ class AutoCompletingComboBox(QComboBox):
         self.completer().setModel(self.model())
 
 
-class XaxisWindow(QtWidgets.QMainWindow):
+class YaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        super(XaxisWindow, self).__init__()
-        self.xAxisData = []
+        super(YaxisWindow, self).__init__()
+        self.yAxisData = []
         self.items = set()
         self.data_frame = None
         self.top_combo_box = None
@@ -38,7 +38,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.middle_vertical_layout = None
         self.middle_horizontal_layout = None
         self.gridLayout_2 = None
-        self.setObjectName("x_axis_window")
+        self.setObjectName("y_axis_window")
         self.setFixedSize(550, 220)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
@@ -125,7 +125,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self):
         translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(translate("MainWindow", "X Axis"))
+        self.setWindowTitle(translate("MainWindow", "Y Axis"))
         self.select_values_label.setText(translate("MainWindow", "Select values of"))
         self.select_column_label.setText(translate("MainWindow", "Select column"))
         self.from_label.setText(translate("MainWindow", "From"))
@@ -148,15 +148,15 @@ class XaxisWindow(QtWidgets.QMainWindow):
         rows = self.data_frame.index[
             self.data_frame[self.top_combo_box.currentText()] == self.middle_combobox.currentText()]
         for row in rows:
-            self.xAxisData.append(
+            self.yAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
         self.close()
-    def getxAxisData(self):
-        return self.xAxisData
+    def getyAxisData(self):
+        return self.yAxisData
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    x_axis_window = XaxisWindow()
+    x_axis_window = YaxisWindow()
     x_axis_window.show()
     sys.exit(app.exec_())

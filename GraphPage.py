@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from XaxisWindow import *
+from YaxisWindow import YaxisWindow
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -141,6 +142,7 @@ class GraphPage(QtWidgets.QWidget):
         self.searchbar_2.textChanged.connect(self.handleSearch)
         self.generate_graph.clicked.connect(self.generate_graph_handler)
         self.x_axis_button.clicked.connect(lambda: self.x_axis_handler())
+        self.y_axis_button.clicked.connect(lambda: self.y_axis_handler())
 
         self.checkboxes = []
 
@@ -226,6 +228,15 @@ class GraphPage(QtWidgets.QWidget):
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
             self.x_axis_window.bottom_combobox.addItemToComboBox(column)
         self.x_axis_window.show()
+
+
+    def y_axis_handler(self):
+        self.y_axis_window = YaxisWindow()
+        self.y_axis_window.set_table_data_frame(self.data_frame)
+        for column in self.data_columns:
+            self.y_axis_window.top_combo_box.addItemToComboBox(column)
+            self.y_axis_window.bottom_combobox.addItemToComboBox(column)
+        self.y_axis_window.show()
 
     def set_table_data_columns(self, columns):
         self.data_columns = columns
