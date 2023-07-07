@@ -22,6 +22,7 @@ class AutoCompletingComboBox(QComboBox):
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.xAxisData = []
         self.items = set()
         self.data_frame = None
         self.top_combo_box = None
@@ -119,7 +120,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.save_vertical_layout, 6, 0, 1, 1)
 
         self.setCentralWidget(self.centralwidget)
-
+        self.save_button.clicked.connect(self.saveButtonHandler)
         self.top_combo_box.activated.connect(self.fillMiddleComboBox)
 
     def retranslateUi(self):
@@ -139,14 +140,14 @@ class XaxisWindow(QtWidgets.QMainWindow):
                 self.items.add(value)
                 self.middle_combobox.addItemToComboBox(str(value))
 
-    # def getComboBoxItems(self):
-    #     for item in range(self.middle_combobox.count()):
-    #         self.items.add(self.middle_combobox.itemText(item))
-    #     return self.items
-
-
     def set_table_data_frame(self, data):
         self.data_frame = data
+
+
+    def saveButtonHandler(self):
+        rows = self.data_frame.index[self.data_frame[self.top_combo_box.currentText()] == self.middle_combobox.currentText()]
+        for row in rows:
+            self.xAxisData.append(self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
 
 
 if __name__ == "__main__":

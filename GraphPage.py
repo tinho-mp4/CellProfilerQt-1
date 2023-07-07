@@ -224,6 +224,7 @@ class GraphPage(QtWidgets.QWidget):
         self.x_axis_window.set_table_data_frame(self.data_frame)
         for column in self.data_columns:
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
+            self.x_axis_window.bottom_combobox.addItemToComboBox(column)
         self.x_axis_window.show()
 
     def set_table_data_columns(self, columns):
