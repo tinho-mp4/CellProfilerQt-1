@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import umap
 from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
