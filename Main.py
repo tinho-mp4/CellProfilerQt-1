@@ -490,7 +490,6 @@ class UiMainWindow(object):
             self.graph_page.set_table_data_columns(self.data.columns)
             self.graph_page.display_data_columns(self.data.columns)
 
-
         else:
             message_box = QMessageBox()
             message_box.setIcon(QMessageBox.Warning)
