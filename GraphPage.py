@@ -26,7 +26,6 @@ class GraphPage(QtWidgets.QWidget):
         self.gridLayout_4 = QtWidgets.QGridLayout(self.graph_grid_frame)
         self.gridLayout_4.setObjectName("gridLayout_4")
 
-
         # left side
         self.vertical_layout_graph_left = QtWidgets.QVBoxLayout()
         self.vertical_layout_graph_left.setObjectName("verticalLayout_4")
@@ -50,9 +49,6 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
-
-
-
 
         # right side
 
@@ -118,8 +114,6 @@ class GraphPage(QtWidgets.QWidget):
         self.LDA_radio_button.setObjectName("LDA_radio_button")
         self.LDA_radio_button.setText("LDA")
         self.graph_options.addWidget(self.LDA_radio_button, 1, 1, 1, 1)
-
-
 
         # spacers
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -229,7 +223,6 @@ class GraphPage(QtWidgets.QWidget):
             self.x_axis_window.bottom_combobox.addItemToComboBox(column)
         self.x_axis_window.show()
 
-
     def y_axis_handler(self):
         self.y_axis_window = YaxisWindow()
         self.y_axis_window.set_table_data_frame(self.data_frame)
@@ -240,6 +233,6 @@ class GraphPage(QtWidgets.QWidget):
 
     def set_table_data_columns(self, columns):
         self.data_columns = columns
+
     def set_table_data_frame(self, data_frame):
         self.data_frame = data_frame
-

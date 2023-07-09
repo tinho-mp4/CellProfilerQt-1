@@ -22,6 +22,9 @@ class AutoCompletingComboBox(QComboBox):
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.save_button = None
+        self.save_horizontal_layout = None
+        self.save_vertical_layout = None
         self.xAxisData = []
         self.items = set()
         self.data_frame = None
@@ -151,6 +154,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
             self.xAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
         self.close()
+
     def getxAxisData(self):
         return self.xAxisData
 
