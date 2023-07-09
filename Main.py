@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QMessageBox,
 )
-
 import CSVHandler
 from GraphPage import GraphPage
 from SettingsWindow import SettingWindow
@@ -27,9 +26,9 @@ class UiMainWindow(object):
         self.modifications_applied = False
         self.original_data = None
         self.search_text = None
-        self.timer = QtCore.QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.performSearch)
+        self.search_timer = QtCore.QTimer()
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(self.performSearch)
         self.actionGroupColumns = None
         self.actionToggleFullScreen = None
         self.gridLayout_6 = None
@@ -268,18 +267,17 @@ class UiMainWindow(object):
     def loadCSV(self):
         try:
             filename = CSVHandler.browseFile()
-            self.data = CSVHandler.loadCSVFile(filename)
-            self.original_data = self.data.copy()
-            self.modifications_applied = False
-            self.updateRevertMenuState()
             if filename:
                 self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
                 self.data = CSVHandler.loadCSVFile(filename)
+                self.original_data = self.data.copy()
+                self.modifications_applied = False
+                self.updateRevertMenuState()
+
                 if self.data is not None and not self.data.empty:
                     plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
                     if plate_column:
-                        self.data[plate_column].fillna('Unknown',
-                                                       inplace=True)
+                        self.data[plate_column].fillna('Unknown', inplace=True)
                     self.displayData(self.data)
                     self.createCheckboxes(self.data.columns)
                     self.Check_all_box.setChecked(True)
@@ -331,7 +329,9 @@ class UiMainWindow(object):
 
     def handleSearch(self, text):
         self.search_text = text
-        self.timer.start(200)
+        self.search_timer.stop()
+        if len(self.search_text) > 2:
+            self.search_timer.start(1000)
 
     def performSearch(self):
         text = self.search_text.lower()
@@ -378,7 +378,7 @@ class UiMainWindow(object):
             self.updateRevertMenuState()
             if self.data is not None:
                 columns_to_normalize = [col for col in self.data.columns if
-                                        col not in ['PLATE', 'Metadata_Compound_Plate']]
+                                        col not in ['PLATE', 'Metadata_Compound_Plate', 'CONCENTRATION']]
 
                 if len(columns_to_normalize) > 0:
                     for column in columns_to_normalize:
@@ -510,6 +510,7 @@ class UiMainWindow(object):
         self.settings_button.setText(translate("MainWindow", "Settings"))
         self.file_loaded_label.setText(translate("MainWindow", "No File Loaded"))
         self.Check_all_box.setText(translate("MainWindow", "Check All"))
+
         self.searchbar.setPlaceholderText(translate("MainWindow", "Search for column name in table"))
         self.menuFile.setTitle(translate("MainWindow", "File"))
         self.menuEdit.setTitle(translate("MainWindow", "Edit"))
