@@ -3,6 +3,7 @@ from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog
 import pandas as pd
 import os
+import dask.dataframe as dd
 
 
 class CSVTableModel(QAbstractTableModel):
@@ -44,17 +45,17 @@ def browseFile():
     return filename
 
 
+
+
 def loadCSVFile(filename):
     if filename:
         try:
-            data = pd.DataFrame()
-            chunk_size = 1000
-            chunk = pd.read_csv(filename, chunksize=chunk_size)
-            pd_df = pd.concat(chunk)
-            return pd_df
+            dask_df = dd.read_csv(filename, assume_missing=True)
+            return dask_df.compute()  # Convert to Pandas DataFrame.
         except Exception as e:
             print(f"Error: {e}")
     return None
+
 
 
 def exportCSVFile(filename, data):
