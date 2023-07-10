@@ -180,8 +180,3 @@ class XaxisWindow(QtWidgets.QMainWindow):
     def getRows(self):
         return self.rows
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    x_axis_window = XaxisWindow()
-    x_axis_window.show()
-    sys.exit(app.exec_())

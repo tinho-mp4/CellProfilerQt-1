@@ -61,6 +61,7 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
+        self.y_axis_button.setEnabled(False)
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
 
         # Right Side

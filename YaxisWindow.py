@@ -42,7 +42,6 @@ class YaxisWindow(QtWidgets.QMainWindow):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.load_saved_data()
 
     def setupUi(self):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
