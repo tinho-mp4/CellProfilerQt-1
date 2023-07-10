@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import umap
 from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -23,6 +22,7 @@ class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
         self.y_axis_window = None
+        self.x_axis_data = []
         self.data_frame = None
         self.data_columns = None
         self.x_axis_window = None
@@ -61,7 +61,6 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
-        self.y_axis_button.setEnabled(False)
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
 
         # Right Side
@@ -280,6 +279,9 @@ class GraphPage(QtWidgets.QWidget):
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
             self.x_axis_window.bottom_combobox.addItemToComboBox(column)
         self.x_axis_window.show()
+
+    def handle_x_axis_data(self):
+        self.x_axis_data = self.x_axis_window.getxAxisData()
 
     def y_axis_handler(self):
         self.y_axis_window = YaxisWindow()

@@ -157,10 +157,22 @@ class XaxisWindow(QtWidgets.QMainWindow):
                 self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
         if self.getxAxisData() is not None:
             self.y_axis_button.setEnabled(True)
+        self.save_data()
         self.close()
 
     def setyAxisButton(self, button):
         self.y_axis_button = button
+
+    def save_data(self):
+        rows = self.data_frame.index[
+            self.data_frame[self.top_combo_box.currentText()] == self.middle_combobox.currentText()]
+        for row in rows:
+            self.xAxisData.append(
+                self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
+
+    def load_saved_data(self):
+        for data in self.xAxisData:
+            self.bottom_combobox.addItemToComboBox(str(data))
 
     def getxAxisData(self):
         return self.xAxisData
@@ -168,3 +180,8 @@ class XaxisWindow(QtWidgets.QMainWindow):
     def getRows(self):
         return self.rows
 
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    x_axis_window = XaxisWindow()
+    x_axis_window.show()
+    sys.exit(app.exec_())
