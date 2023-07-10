@@ -53,6 +53,8 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
+        self.load_saved_data()
+
     def setupUi(self):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -153,7 +155,19 @@ class XaxisWindow(QtWidgets.QMainWindow):
         for row in rows:
             self.xAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
+        self.save_data()
         self.close()
+
+    def save_data(self):
+        rows = self.data_frame.index[
+            self.data_frame[self.top_combo_box.currentText()] == self.middle_combobox.currentText()]
+        for row in rows:
+            self.xAxisData.append(
+                self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
+
+    def load_saved_data(self):
+        for data in self.xAxisData:
+            self.bottom_combobox.addItemToComboBox(str(data))
 
     def getxAxisData(self):
         return self.xAxisData

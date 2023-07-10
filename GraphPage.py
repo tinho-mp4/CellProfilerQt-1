@@ -22,6 +22,7 @@ class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
         self.y_axis_window = None
+        self.x_axis_data = []
         self.data_frame = None
         self.data_columns = None
         self.x_axis_window = None
@@ -255,7 +256,7 @@ class GraphPage(QtWidgets.QWidget):
         self.graph_canvas.draw()
 
     def update_graph(self):
-        x_columns = self.x_axis_window.get_x_axis_columns()
+        x_columns = self.x_axis_data
         y_columns = self.y_axis_window.get_y_axis_columns()
 
         if x_columns and y_columns:
@@ -277,6 +278,9 @@ class GraphPage(QtWidgets.QWidget):
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
             self.x_axis_window.bottom_combobox.addItemToComboBox(column)
         self.x_axis_window.show()
+
+    def handle_x_axis_data(self):
+        self.x_axis_data = self.x_axis_window.getxAxisData()
 
     def y_axis_handler(self):
         self.y_axis_window = YaxisWindow()
