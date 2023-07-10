@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import umap
 from PyQt5 import QtWidgets, QtCore
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -60,6 +61,7 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
         self.y_axis_button.setObjectName("y_axis_button")
         self.y_axis_button.setText("Y-Axis")
+        self.y_axis_button.setEnabled(False)
         self.vertical_layout_graph_left.addWidget(self.y_axis_button)
 
         # Right Side
@@ -255,8 +257,8 @@ class GraphPage(QtWidgets.QWidget):
         self.graph_canvas.draw()
 
     def update_graph(self):
-        x_columns = self.x_axis_window.get_x_axis_columns()
-        y_columns = self.y_axis_window.get_y_axis_columns()
+        x_columns = self.x_axis_window.getxAxisData()
+        y_columns = self.y_axis_window.getyAxisData()
 
         if x_columns and y_columns:
             graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
@@ -273,6 +275,7 @@ class GraphPage(QtWidgets.QWidget):
     def x_axis_handler(self):
         self.x_axis_window = XaxisWindow()
         self.x_axis_window.set_table_data_frame(self.data_frame)
+        self.x_axis_window.setyAxisButton(self.y_axis_button)
         for column in self.data_columns:
             self.x_axis_window.top_combo_box.addItemToComboBox(column)
             self.x_axis_window.bottom_combobox.addItemToComboBox(column)
@@ -281,9 +284,9 @@ class GraphPage(QtWidgets.QWidget):
     def y_axis_handler(self):
         self.y_axis_window = YaxisWindow()
         self.y_axis_window.set_table_data_frame(self.data_frame)
+        self.y_axis_window.setRows(self.x_axis_window.getRows())
         for column in self.data_columns:
-            self.y_axis_window.top_combo_box.addItem(column)
-            self.y_axis_window.bottom_combobox.addItem(column)
+            self.y_axis_window.column_combo_box.addItem(column)
         self.y_axis_window.show()
 
     def set_table_data_columns(self, columns):

@@ -22,6 +22,7 @@ class AutoCompletingComboBox(QComboBox):
 class XaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XaxisWindow, self).__init__()
+        self.rows = None
         self.save_button = None
         self.save_horizontal_layout = None
         self.save_vertical_layout = None
@@ -49,6 +50,7 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.top_combo_box = None
         self.middle_combobox = None
         self.bottom_combobox = None
+        self.y_axis_button = None
         self.setupUi()
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -148,19 +150,21 @@ class XaxisWindow(QtWidgets.QMainWindow):
         self.data_frame = data
 
     def saveButtonHandler(self):
-        rows = self.data_frame.index[
+        self.rows = self.data_frame.index[
             self.data_frame[self.top_combo_box.currentText()] == self.middle_combobox.currentText()]
-        for row in rows:
+        for row in self.rows:
             self.xAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.bottom_combobox.currentText())])
+        if self.getxAxisData() is not None:
+            self.y_axis_button.setEnabled(True)
         self.close()
+
+    def setyAxisButton(self, button):
+        self.y_axis_button = button
 
     def getxAxisData(self):
         return self.xAxisData
 
+    def getRows(self):
+        return self.rows
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    x_axis_window = XaxisWindow()
-    x_axis_window.show()
-    sys.exit(app.exec_())
