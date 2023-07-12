@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QComboBox, QCompleter
+from PyQt5.QtWidgets import QComboBox, QCompleter, QMessageBox
 
 
 class AutoCompletingComboBox(QComboBox):
@@ -264,6 +264,12 @@ class XYaxisWindow(QtWidgets.QMainWindow):
                 self.xAxisValues_comboBox.addItemToComboBox(str(value))
 
     def saveButtonHandler(self):
+        if (self.xAxisColumn_comboBox.currentText() == "" or
+                self.xAxisColumn2_comboBox.currentText() == "" or
+                self.yAxis_comboBox.currentText() == ""):
+            QMessageBox.warning(self, "Warning", "Please input data before saving.")
+            return
+
         self.xAxisData = []
         self.yAxisData = []
 
