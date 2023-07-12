@@ -229,12 +229,13 @@ class XYaxisWindow(QtWidgets.QMainWindow):
 
 
 
-        self.save_button.clicked.connect(self.saveButtonHandler)
+        self.save_button.clicked.connect(self.saveScatterButtonHandler)
+        self.saveHistogram_button.clicked.connect(self.saveHistogramButtonHandler)
         self.xAxisColumn_comboBox.activated.connect(self.fillValuesComboBox)
 
 
 
-        self.stackedWidget.setCurrentIndex(0)
+
 
     def translateUi(self):
         translate = QtCore.QCoreApplication.translate
@@ -265,7 +266,10 @@ class XYaxisWindow(QtWidgets.QMainWindow):
                 self.xAxisValues_comboBox.addItemToComboBox(str(value))
 
 
-    def saveButtonHandler(self):
+    def saveHistogramButtonHandler(self):
+        print("worked")
+
+    def saveScatterButtonHandler(self):
         self.rows = self.data_frame.index[
             self.data_frame[self.xAxisColumn_comboBox.currentText()] == self.xAxisValues_comboBox.currentText()]
         for row in self.rows:
@@ -282,6 +286,13 @@ class XYaxisWindow(QtWidgets.QMainWindow):
 
     def getxAxisData(self):
         return self.xAxisData
+
+    def displayPage(self, state):
+        if state == 1:
+            self.stackedWidget.setCurrentIndex(0)
+        elif state == 2:
+            self.stackedWidget.setCurrentIndex(1)
+
 
     def getRows(self):
         return self.rows

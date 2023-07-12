@@ -43,6 +43,7 @@ class GraphPage(QtWidgets.QWidget):
         self.scatter_plot_radio = QtWidgets.QRadioButton(self.graph_grid_frame)
         self.scatter_plot_radio.setObjectName("scatter_plot_radio")
         self.scatter_plot_radio.setText("Scatter Plot")
+        self.scatter_plot_radio.setChecked(True)
         self.vertical_layout_graph_left.addWidget(self.scatter_plot_radio)
 
         self.bar_graph_radio = QtWidgets.QRadioButton(self.graph_grid_frame)
@@ -264,11 +265,16 @@ class GraphPage(QtWidgets.QWidget):
 
     def xy_axis_handler(self):
         self.xy_axis_window = XYaxisWindow.XYaxisWindow()
+        if self.scatter_plot_radio.isChecked():
+            self.xy_axis_window.displayPage(1)
+        elif self.bar_graph_radio.isChecked():
+            self.xy_axis_window.displayPage(2)
         self.xy_axis_window.set_table_data_frame(self.data_frame)
         for column in self.data_columns:
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
+            self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
         self.xy_axis_window.show()
 
     def handle_x_axis_data(self):
