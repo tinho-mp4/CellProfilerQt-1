@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from matplotlib import pyplot as plt
 
 import XYaxisWindow
 
@@ -17,6 +18,14 @@ class GraphCanvas(FigureCanvas):
         self.figure = fig
         FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
+
+class GraphWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super(GraphWindow, self).__init__()
+        self.graph_canvas = GraphCanvas(Figure())
+        self.graph_layout = QtWidgets.QVBoxLayout(self)
+        self.graph_layout.addWidget(self.graph_canvas)
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -159,6 +168,7 @@ class GraphPage(QtWidgets.QWidget):
         self.xy_axis_button.clicked.connect(self.xy_axis_handler)
 
         self.checkboxes = []
+        self.graph_window = GraphWindow()
 
     def toggleGraphType(self):
         self.PCA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
@@ -233,23 +243,24 @@ class GraphPage(QtWidgets.QWidget):
 
         reduced_data = reducer.fit_transform(data)
 
-        self.graph_canvas.axes.clear()
+        self.graph_window.graph_canvas.figure.clear()
 
         if graph_type == "scatter":
-            self.graph_canvas.axes.scatter(reduced_data[:, 0], reduced_data[:, 1])
-            self.graph_canvas.axes.set_xlabel("Component 1")
-            self.graph_canvas.axes.set_ylabel("Component 2")
-            self.graph_canvas.axes.set_title("Scatter Plot")
+            self.graph_window.graph_canvas.axes.scatter(reduced_data[:, 0], reduced_data[:, 1])
+            self.graph_window.graph_canvas.axes.set_xlabel("Component 1")
+            self.graph_window.graph_canvas.axes.set_ylabel("Component 2")
+            self.graph_window.graph_canvas.axes.set_title("Scatter Plot")
 
         elif graph_type == "bar":
-            self.graph_canvas.axes.bar(range(len(columns)), reduced_data)
-            self.graph_canvas.axes.set_xlabel("Columns")
-            self.graph_canvas.axes.set_ylabel("Values")
-            self.graph_canvas.axes.set_title("Bar Chart")
-            self.graph_canvas.axes.set_xticks(range(len(columns)))
-            self.graph_canvas.axes.set_xticklabels(columns, rotation=90)
+            self.graph_window.graph_canvas.axes.bar(range(len(columns)), reduced_data)
+            self.graph_window.graph_canvas.axes.set_xlabel("Columns")
+            self.graph_window.graph_canvas.axes.set_ylabel("Values")
+            self.graph_window.graph_canvas.axes.set_title("Bar Chart")
+            self.graph_window.graph_canvas.axes.set_xticks(range(len(columns)))
+            self.graph_window.graph_canvas.axes.set_xticklabels(columns, rotation=90)
 
-        self.graph_canvas.draw()
+        self.graph_window.graph_canvas.draw()
+        self.graph_window.show()
 
     def update_graph(self):
         x_columns = self.xy_axis_window.getxAxisData()
@@ -257,15 +268,61 @@ class GraphPage(QtWidgets.QWidget):
 
         if x_columns and y_columns:
             graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
-            dimensionality_reduction = ""
-            if self.PCA_radio_button.isChecked():
-                dimensionality_reduction = "PCA"
-            elif self.tSNE_radio_button.isChecked():
-                dimensionality_reduction = "t-SNE"
-            elif self.UMAP_radio_button.isChecked():
-                dimensionality_reduction = "UMAP"
 
-            self.generate_graph_with_columns(x_columns, graph_type, dimensionality_reduction)
+            if self.PCA_radio_button.isChecked() \
+                    or self.tSNE_radio_button.isChecked() or self.UMAP_radio_button.isChecked():
+                dimensionality_reduction = ""
+                if self.PCA_radio_button.isChecked():
+                    dimensionality_reduction = "PCA"
+                elif self.tSNE_radio_button.isChecked():
+                    dimensionality_reduction = "t-SNE"
+                elif self.UMAP_radio_button.isChecked():
+                    dimensionality_reduction = "UMAP"
+
+                # Declare the reducer variable
+                reducer = None
+
+                # Perform dimensionality reduction if a method is selected
+                if dimensionality_reduction == "PCA":
+                    reducer = PCA(n_components=2)
+                elif dimensionality_reduction == "t-SNE":
+                    reducer = TSNE(n_components=2)
+                elif dimensionality_reduction == "UMAP":
+                    reducer = umap.UMAP()
+
+                if reducer is not None:
+                    # Reduce the data to 2 dimensions
+                    data = self.data_frame[x_columns + y_columns]
+                    reduced_data = reducer.fit_transform(data)
+                    x_data = reduced_data[:, 0]
+                    y_data = reduced_data[:, 1]
+                else:
+                    # Use original data without dimensionality reduction
+                    x_data = self.data_frame[x_columns].values
+                    y_data = self.data_frame[y_columns].values
+            else:
+                # Use original data without dimensionality reduction
+                x_data = self.data_frame[x_columns].values
+                y_data = self.data_frame[y_columns].values
+
+            self.graph_window.graph_canvas.figure.clear()
+
+            if graph_type == "scatter":
+                self.graph_window.graph_canvas.axes.scatter(x_data, y_data)
+                self.graph_window.graph_canvas.axes.set_xlabel("X Axis")
+                self.graph_window.graph_canvas.axes.set_ylabel("Y Axis")
+                self.graph_window.graph_canvas.axes.set_title("Scatter Plot")
+
+            elif graph_type == "bar":
+                x_ticks = np.arange(len(x_columns))
+                self.graph_window.graph_canvas.axes.bar(x_ticks, y_data)
+                self.graph_window.graph_canvas.axes.set_xlabel("X Axis")
+                self.graph_window.graph_canvas.axes.set_ylabel("Y Axis")
+                self.graph_window.graph_canvas.axes.set_title("Bar Chart")
+                self.graph_window.graph_canvas.axes.set_xticks(x_ticks)
+                self.graph_window.graph_canvas.axes.set_xticklabels(x_columns, rotation=90)
+
+            self.graph_window.graph_canvas.draw()
 
     def xy_axis_handler(self):
         self.xy_axis_window = XYaxisWindow.XYaxisWindow()
