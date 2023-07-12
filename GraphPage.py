@@ -1,12 +1,10 @@
-import matplotlib.pyplot as plt
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QButtonGroup
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from XaxisWindow import XaxisWindow
-from YaxisWindow import YaxisWindow
-from PyQt5.QtWidgets import QButtonGroup
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+import XYaxisWindow
 
 
 class GraphCanvas(FigureCanvas):
@@ -21,11 +19,10 @@ class GraphCanvas(FigureCanvas):
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
-        self.y_axis_window = None
+        self.xy_axis_window = None
         self.x_axis_data = []
         self.data_frame = None
         self.data_columns = None
-        self.x_axis_window = None
         self.search_text = None
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
@@ -53,16 +50,10 @@ class GraphPage(QtWidgets.QWidget):
         self.bar_graph_radio.setText("Bar Graph")
         self.vertical_layout_graph_left.addWidget(self.bar_graph_radio)
 
-        self.x_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
-        self.x_axis_button.setObjectName("x_axis_button")
-        self.x_axis_button.setText("X-Axis")
-        self.vertical_layout_graph_left.addWidget(self.x_axis_button)
-
-        self.y_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
-        self.y_axis_button.setObjectName("y_axis_button")
-        self.y_axis_button.setText("Y-Axis")
-        self.y_axis_button.setEnabled(False)
-        self.vertical_layout_graph_left.addWidget(self.y_axis_button)
+        self.xy_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
+        self.xy_axis_button.setObjectName("xy_axis_button")
+        self.xy_axis_button.setText("Setup X/Y Axis")
+        self.vertical_layout_graph_left.addWidget(self.xy_axis_button)
 
         # Right Side
         self.vertical_layout_graph_right = QtWidgets.QVBoxLayout()
@@ -160,8 +151,7 @@ class GraphPage(QtWidgets.QWidget):
         self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
         self.searchbar_2.textChanged.connect(self.handleSearch)
         self.generate_graph.clicked.connect(self.update_graph)
-        self.x_axis_button.clicked.connect(self.x_axis_handler)
-        self.y_axis_button.clicked.connect(self.y_axis_handler)
+        self.xy_axis_button.clicked.connect(self.xy_axis_handler)
 
         self.checkboxes = []
 
@@ -272,25 +262,18 @@ class GraphPage(QtWidgets.QWidget):
 
             self.generate_graph_with_columns(x_columns, graph_type, dimensionality_reduction)
 
-    def x_axis_handler(self):
-        self.x_axis_window = XaxisWindow()
-        self.x_axis_window.set_table_data_frame(self.data_frame)
-        self.x_axis_window.setyAxisButton(self.y_axis_button)
+    def xy_axis_handler(self):
+        self.xy_axis_window = XYaxisWindow.XYaxisWindow()
+        self.xy_axis_window.set_table_data_frame(self.data_frame)
         for column in self.data_columns:
-            self.x_axis_window.top_combo_box.addItemToComboBox(column)
-            self.x_axis_window.bottom_combobox.addItemToComboBox(column)
-        self.x_axis_window.show()
+            self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
+            self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
+            self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
+        self.xy_axis_window.show()
 
     def handle_x_axis_data(self):
-        self.x_axis_data = self.x_axis_window.getxAxisData()
+        self.x_axis_data = self.xy_axis_window.getxAxisData()
 
-    def y_axis_handler(self):
-        self.y_axis_window = YaxisWindow()
-        self.y_axis_window.set_table_data_frame(self.data_frame)
-        self.y_axis_window.setRows(self.x_axis_window.getRows())
-        for column in self.data_columns:
-            self.y_axis_window.column_combo_box.addItem(column)
-        self.y_axis_window.show()
 
     def set_table_data_columns(self, columns):
         self.data_columns = columns
