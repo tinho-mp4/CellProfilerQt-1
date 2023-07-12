@@ -21,6 +21,7 @@ class GraphPage(QtWidgets.QWidget):
         super(GraphPage, self).__init__()
         self.xy_axis_window = None
         self.x_axis_data = []
+        self.y_axis_data = []
         self.data_frame = None
         self.data_columns = None
         self.search_text = None
@@ -276,7 +277,7 @@ class GraphPage(QtWidgets.QWidget):
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
 
         # Load saved data if available
-        self.xy_axis_window.load_saved_data()
+        self.xy_axis_window.load_saved_data(self.x_axis_data, self.y_axis_data)
         self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
         self.xy_axis_window.show()
 

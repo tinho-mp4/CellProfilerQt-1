@@ -261,7 +261,7 @@ class XYaxisWindow(QtWidgets.QMainWindow):
                 self.xAxisValues_comboBox.addItemToComboBox(str(value))
 
     def saveButtonHandler(self):
-        self.xAxisData = []  # Clear the previous data
+        self.xAxisData = []
         self.yAxisData = []
 
         # Retrieve the selected rows based on user input
@@ -280,9 +280,11 @@ class XYaxisWindow(QtWidgets.QMainWindow):
 
         self.close()
 
-    def load_saved_data(self):
-        for data in self.xAxisData:
+    def load_saved_data(self, x_axis_data, y_axis_data):
+        for data in x_axis_data:
             self.xAxisColumn2_comboBox.addItemToComboBox(str(data))
+        for data in y_axis_data:
+            self.yAxis_comboBox.addItemToComboBox(str(data))
 
     def getxAxisData(self):
         return self.xAxisData
