@@ -162,7 +162,6 @@ class GraphPage(QtWidgets.QWidget):
         self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 3, 1, 1)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
 
-
         # Signal Handlers
         self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
         self.searchbar_2.textChanged.connect(self.handleSearch)
@@ -328,8 +327,6 @@ class GraphPage(QtWidgets.QWidget):
 
     def setupXyWindow(self):
         self.xy_axis_window.set_table_data_frame(self.data_frame)
-
-        column = ""
 
         for column in self.data_columns:
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
