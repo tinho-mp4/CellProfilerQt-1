@@ -1,6 +1,9 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QButtonGroup
+from PyQt5.QtWidgets import QButtonGroup, QFileDialog
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import pandas as pd
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
@@ -154,7 +157,7 @@ class GraphPage(QtWidgets.QWidget):
         # Signal Handlers
         self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
         self.searchbar_2.textChanged.connect(self.handleSearch)
-        self.generate_graph.clicked.connect(self.update_graph)
+        self.generate_graph.clicked.connect(self.generate_graph_handler)
         self.xy_axis_button.clicked.connect(self.xy_axis_handler)
 
         self.checkboxes = []
@@ -191,9 +194,9 @@ class GraphPage(QtWidgets.QWidget):
 
     def handleSearch(self, text):
         self.search_text = text
-        self.search_timer.stop()
+        self.timer.stop()
         if len(self.search_text) > 2:
-            self.search_timer.start(1000)
+            self.timer.start(1000)
 
     def perform_search(self):
         text = self.search_text.lower()
@@ -251,8 +254,8 @@ class GraphPage(QtWidgets.QWidget):
         self.graph_canvas.draw()
 
     def update_graph(self):
-        x_columns = self.x_axis_window.getxAxisData()
-        y_columns = self.y_axis_window.getyAxisData()
+        x_columns = self.xy_axis_window.getxAxisData()
+        y_columns = self.xy_axis_window.getyAxisData()
 
         if x_columns and y_columns:
             graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
@@ -268,6 +271,9 @@ class GraphPage(QtWidgets.QWidget):
 
     def setupXyWindow(self):
         self.xy_axis_window.set_table_data_frame(self.data_frame)
+
+        column = ""
+
         for column in self.data_columns:
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
