@@ -31,7 +31,7 @@ class GraphWindow(QtWidgets.QWidget):
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
-        self.xy_axis_window = None
+        self.xy_axis_window = XYaxisWindow.XYaxisWindow()
         self.x_axis_data = []
         self.y_axis_data = []
         self.data_frame = None
@@ -108,6 +108,7 @@ class GraphPage(QtWidgets.QWidget):
         self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
         self.generate_graph.setObjectName("generate_graph")
         self.generate_graph.setText("Generate")
+        self.generate_graph.setEnabled(False)
         self.horizontal_layout_generate_button.addWidget(self.generate_graph)
 
         # Left Side PCA.. Options
@@ -160,6 +161,7 @@ class GraphPage(QtWidgets.QWidget):
         self.vertical_layout_graph_right.addLayout(self.horizontal_layout_generate_button)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 3, 1, 1)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
+
 
         # Signal Handlers
         self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
@@ -324,12 +326,7 @@ class GraphPage(QtWidgets.QWidget):
 
             self.graph_window.graph_canvas.draw()
 
-    def xy_axis_handler(self):
-        self.xy_axis_window = XYaxisWindow.XYaxisWindow()
-        if self.scatter_plot_radio.isChecked():
-            self.xy_axis_window.displayPage(1)
-        elif self.bar_graph_radio.isChecked():
-            self.xy_axis_window.displayPage(2)
+    def setupXyWindow(self):
         self.xy_axis_window.set_table_data_frame(self.data_frame)
 
         column = ""
@@ -338,10 +335,15 @@ class GraphPage(QtWidgets.QWidget):
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
+            self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
 
+    def xy_axis_handler(self):
+        if self.scatter_plot_radio.isChecked():
+            self.xy_axis_window.displayPage(1)
+        elif self.bar_graph_radio.isChecked():
+            self.xy_axis_window.displayPage(2)
         # Load saved data if available
-        self.xy_axis_window.load_saved_data(self.x_axis_data, self.y_axis_data)
-        self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
+        self.xy_axis_window.load_saved_data()
         self.xy_axis_window.show()
 
     def handle_x_axis_data(self):

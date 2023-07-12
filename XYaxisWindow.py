@@ -24,6 +24,9 @@ def saveHistogramButtonHandler():
 class XYaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XYaxisWindow, self).__init__()
+        self.savedSelectedYColumn = None
+        self.savedSelectedXColumn2 = None
+        self.savedSelectedXColumn = None
         self.rows = None
         self.saveHistogram_button = None
         self.saveHistogramButton_layout = None
@@ -278,13 +281,16 @@ class XYaxisWindow(QtWidgets.QMainWindow):
             self.yAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.yAxis_comboBox.currentText())])
 
+        self.savedSelectedXColumn = str(self.xAxisColumn_comboBox.currentText())
+        self.savedSelectedXColumn2 = str(self.xAxisColumn2_comboBox.currentText())
+        self.savedSelectedYColumn = str(self.yAxis_comboBox.currentText())
+
         self.close()
 
-    def load_saved_data(self, x_axis_data, y_axis_data):
-        for data in x_axis_data:
-            self.xAxisColumn2_comboBox.addItemToComboBox(str(data))
-        for data in y_axis_data:
-            self.yAxis_comboBox.addItemToComboBox(str(data))
+    def load_saved_data(self):
+        self.xAxisColumn_comboBox.setCurrentText(self.savedSelectedXColumn)
+        self.xAxisColumn2_comboBox.setCurrentText(self.savedSelectedXColumn2)
+        self.yAxis_comboBox.setCurrentText(self.savedSelectedYColumn)
 
     def getxAxisData(self):
         return self.xAxisData

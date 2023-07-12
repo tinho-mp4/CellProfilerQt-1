@@ -489,6 +489,7 @@ class UiMainWindow(object):
             self.graph_page.set_table_data_frame(self.data)
             self.graph_page.set_table_data_columns(self.data.columns)
             self.graph_page.display_data_columns(self.data.columns)
+            self.graph_page.setupXyWindow()
 
         else:
             message_box = QMessageBox()
