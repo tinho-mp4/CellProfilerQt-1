@@ -287,6 +287,9 @@ class XYaxisWindow(QtWidgets.QMainWindow):
     def getxAxisData(self):
         return self.xAxisData
 
+    def getyAxisData(self):
+        return self.yAxisData
+
     def displayPage(self, state):
         if state == 1:
             self.stackedWidget.setCurrentIndex(0)
