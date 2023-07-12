@@ -17,9 +17,18 @@ class AutoCompletingComboBox(QComboBox):
         self.completer().setModel(self.model())
 
 
+def saveHistogramButtonHandler():
+    print("worked")
+
+
 class XYaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XYaxisWindow, self).__init__()
+        self.rows = None
+        self.saveHistogram_button = None
+        self.saveHistogramButton_layout = None
+        self.saveButton_layout = None
+        self.save_button = None
         self.xAxisData = []
         self.yAxisData = []
         self.items = set()
@@ -134,12 +143,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.scatterplot_main_layout.addLayout(self.xAxisColumn2_layout)
 
         # Y-axis
-        self.yAxis_line = QtWidgets.QFrame(self.scatter_plot_page)
-        self.yAxis_line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.yAxis_line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.yAxis_line.setObjectName("yAxis_line")
-        self.scatterplot_main_layout.addWidget(self.yAxis_line)
-
         self.yAxis_label = QtWidgets.QLabel(self.scatter_plot_page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHeightForWidth(self.yAxis_label.sizePolicy().hasHeightForWidth())
@@ -148,11 +151,11 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.yAxis_label.setObjectName("yAxis_label")
         self.scatterplot_main_layout.addWidget(self.yAxis_label)
 
-        self.yAxis_line2 = QtWidgets.QFrame(self.scatter_plot_page)
-        self.yAxis_line2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.yAxis_line2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.yAxis_line2.setObjectName("yAxis_line2")
-        self.scatterplot_main_layout.addWidget(self.yAxis_line2)
+        self.yAxis_line = QtWidgets.QFrame(self.scatter_plot_page)
+        self.yAxis_line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.yAxis_line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.yAxis_line.setObjectName("yAxis_line")
+        self.scatterplot_main_layout.addWidget(self.yAxis_line)
 
         self.yAxis_layout = QtWidgets.QHBoxLayout()
         self.yAxis_layout.setObjectName("yAxis_layout")
@@ -226,16 +229,10 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.gridLayout.addWidget(self.stackedWidget, 0, 1, 1, 1)
         self.setCentralWidget(self.centralwidget)
 
-
-
-
-        self.save_button.clicked.connect(self.saveScatterButtonHandler)
-        self.saveHistogram_button.clicked.connect(self.saveHistogramButtonHandler)
+        self.save_button.clicked.connect(self.saveButtonHandler)
         self.xAxisColumn_comboBox.activated.connect(self.fillValuesComboBox)
 
-
-
-
+        self.stackedWidget.setCurrentIndex(0)
 
     def translateUi(self):
         translate = QtCore.QCoreApplication.translate
@@ -250,10 +247,8 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.histogramColumn_label.setText(translate("xyAxisWindow", "Select column:"))
         self.saveHistogram_button.setText(translate("xyAxisWindow", "Save"))
 
-
     def set_table_data_frame(self, data):
         self.data_frame = data
-
 
     def fillValuesComboBox(self):
         self.xAxisValues_comboBox.clear()
@@ -265,19 +260,24 @@ class XYaxisWindow(QtWidgets.QMainWindow):
                 self.items.add(value)
                 self.xAxisValues_comboBox.addItemToComboBox(str(value))
 
+    def saveButtonHandler(self):
+        self.xAxisData = []  # Clear the previous data
+        self.yAxisData = []
 
-    def saveHistogramButtonHandler(self):
-        print("worked")
-
-    def saveScatterButtonHandler(self):
+        # Retrieve the selected rows based on user input
         self.rows = self.data_frame.index[
             self.data_frame[self.xAxisColumn_comboBox.currentText()] == self.xAxisValues_comboBox.currentText()]
+
+        # Retrieve X-axis data
         for row in self.rows:
             self.xAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.xAxisColumn2_comboBox.currentText())])
+
+        # Retrieve Y-axis data
         for row in self.rows:
             self.yAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.yAxis_comboBox.currentText())])
+
         self.close()
 
     def load_saved_data(self):
@@ -295,7 +295,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
             self.stackedWidget.setCurrentIndex(0)
         elif state == 2:
             self.stackedWidget.setCurrentIndex(1)
-
 
     def getRows(self):
         return self.rows

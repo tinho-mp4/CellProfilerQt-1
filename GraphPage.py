@@ -274,12 +274,14 @@ class GraphPage(QtWidgets.QWidget):
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
-            self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
+
+        # Load saved data if available
+        self.xy_axis_window.load_saved_data()
+        self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
         self.xy_axis_window.show()
 
     def handle_x_axis_data(self):
         self.x_axis_data = self.xy_axis_window.getxAxisData()
-
 
     def set_table_data_columns(self, columns):
         self.data_columns = columns
