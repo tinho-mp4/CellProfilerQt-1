@@ -24,6 +24,7 @@ def saveHistogramButtonHandler():
 class XYaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XYaxisWindow, self).__init__()
+        self.generate_button = None
         self.savedSelectedYColumn = None
         self.savedSelectedXColumn2 = None
         self.savedSelectedXColumn = None
@@ -290,7 +291,7 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.savedSelectedXColumn = str(self.xAxisColumn_comboBox.currentText())
         self.savedSelectedXColumn2 = str(self.xAxisColumn2_comboBox.currentText())
         self.savedSelectedYColumn = str(self.yAxis_comboBox.currentText())
-
+        self.generate_button.setEnabled(True)
         self.close()
 
     def load_saved_data(self):
@@ -312,3 +313,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
 
     def getRows(self):
         return self.rows
+
+    def setGenerateButton(self, button):
+        self.generate_button = button

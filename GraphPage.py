@@ -327,7 +327,7 @@ class GraphPage(QtWidgets.QWidget):
 
     def setupXyWindow(self):
         self.xy_axis_window.set_table_data_frame(self.data_frame)
-
+        self.xy_axis_window.setGenerateButton(self.generate_graph)
         for column in self.data_columns:
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
