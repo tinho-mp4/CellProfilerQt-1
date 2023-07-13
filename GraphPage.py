@@ -230,25 +230,6 @@ class GraphPage(QtWidgets.QWidget):
 
     def generate_graph_handler(self):
 
-        # redundant code?
-
-        # selected_columns = []
-        # for checkbox in self.checkboxes:
-        #     if checkbox.isChecked():
-        #         selected_columns.append(checkbox.text())
-        #
-        # graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
-        #
-        # dimensionality_reduction = ""
-        # if self.PCA_radio_button.isChecked():
-        #     dimensionality_reduction = "PCA"
-        # elif self.tSNE_radio_button.isChecked():
-        #     dimensionality_reduction = "t-SNE"
-        # elif self.UMAP_radio_button.isChecked():
-        #     dimensionality_reduction = "UMAP"
-        #
-        # self.generate_graph_with_columns(selected_columns, graph_type, dimensionality_reduction)
-
         self.x_axis_data = self.xy_axis_window.getxAxisData()
         self.y_axis_data = self.xy_axis_window.getyAxisData()
         self.bar_chart_data = self.xy_axis_window.getBarChartColumnData()
@@ -266,9 +247,6 @@ class GraphPage(QtWidgets.QWidget):
             ax = graphWindow.figure.add_subplot(111)
             ax.bar(np.arange(len(self.bar_chart_data)), self.bar_chart_data)
             graphWindow.show()
-
-
-
 
     def generate_graph_with_columns(self, columns, graph_type, dimensionality_reduction):
         data = self.data_frame[columns]
