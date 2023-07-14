@@ -24,24 +24,27 @@ def saveHistogramButtonHandler():
 class XYaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XYaxisWindow, self).__init__()
+        self.savedSelectedBarColumn = None
+        self.generate_button = None
         self.savedSelectedYColumn = None
         self.savedSelectedXColumn2 = None
         self.savedSelectedXColumn = None
         self.rows = None
-        self.saveHistogram_button = None
+        self.saveBarChart_button = None
         self.saveHistogramButton_layout = None
         self.saveButton_layout = None
         self.save_button = None
         self.xAxisData = []
         self.yAxisData = []
+        self.barChartColumnData = []
         self.items = set()
         self.data_frame = None
-        self.histogramColumn_combobox = None
-        self.histogramColumn_label = None
+        self.barChartColumn_combobox = None
+        self.barColumn_label = None
         self.horizontal_layout = None
         self.vertical_layout = None
         self.gridLayout_3 = None
-        self.histogram_page = None
+        self.bar_chart_page = None
         self.yAxis_comboBox = None
         self.selectColumn_label = None
         self.yAxis_layout = None
@@ -191,9 +194,9 @@ class XYaxisWindow(QtWidgets.QMainWindow):
 
         # Histogram page
 
-        self.histogram_page = QtWidgets.QWidget()
-        self.histogram_page.setObjectName("histogram_page")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.histogram_page)
+        self.bar_chart_page = QtWidgets.QWidget()
+        self.bar_chart_page.setObjectName("histogram_page")
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.bar_chart_page)
 
         self.gridLayout_3.setObjectName("gridLayout_3")
 
@@ -202,39 +205,39 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.horizontal_layout = QtWidgets.QHBoxLayout()
         self.horizontal_layout.setObjectName("horizontal_layout")
 
-        self.histogramColumn_label = QtWidgets.QLabel(self.histogram_page)
+        self.barColumn_label = QtWidgets.QLabel(self.bar_chart_page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHeightForWidth(self.histogramColumn_label.sizePolicy().hasHeightForWidth())
-        self.histogramColumn_label.setSizePolicy(sizePolicy)
-        self.histogramColumn_label.setObjectName("histogramColumn_label")
-        self.horizontal_layout.addWidget(self.histogramColumn_label)
+        sizePolicy.setHeightForWidth(self.barColumn_label.sizePolicy().hasHeightForWidth())
+        self.barColumn_label.setSizePolicy(sizePolicy)
+        self.barColumn_label.setObjectName("histogramColumn_label")
+        self.horizontal_layout.addWidget(self.barColumn_label)
 
-        self.histogramColumn_combobox = AutoCompletingComboBox(self.histogram_page)
+        self.barChartColumn_combobox = AutoCompletingComboBox(self.bar_chart_page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHeightForWidth(self.histogramColumn_combobox.sizePolicy().hasHeightForWidth())
-        self.histogramColumn_combobox.setSizePolicy(sizePolicy)
-        self.histogramColumn_combobox.setObjectName("histogramColumn_combobox")
-        self.horizontal_layout.addWidget(self.histogramColumn_combobox)
+        sizePolicy.setHeightForWidth(self.barChartColumn_combobox.sizePolicy().hasHeightForWidth())
+        self.barChartColumn_combobox.setSizePolicy(sizePolicy)
+        self.barChartColumn_combobox.setObjectName("histogramColumn_combobox")
+        self.horizontal_layout.addWidget(self.barChartColumn_combobox)
         self.vertical_layout.addLayout(self.horizontal_layout)
 
         self.saveHistogramButton_layout = QtWidgets.QHBoxLayout()
         self.saveHistogramButton_layout.setObjectName("saveHistogramButton_layout")
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.saveHistogramButton_layout.addItem(spacerItem1)
-        self.saveHistogram_button = QtWidgets.QPushButton(self.histogram_page)
-        self.saveHistogram_button.setObjectName("saveHistogram_button")
-        self.saveHistogramButton_layout.addWidget(self.saveHistogram_button)
+        self.saveBarChart_button = QtWidgets.QPushButton(self.bar_chart_page)
+        self.saveBarChart_button.setObjectName("saveHistogram_button")
+        self.saveHistogramButton_layout.addWidget(self.saveBarChart_button)
         self.vertical_layout.addLayout(self.saveHistogramButton_layout)
 
         self.gridLayout_3.addLayout(self.vertical_layout, 0, 0, 1, 1)
-        self.stackedWidget.addWidget(self.histogram_page)
+        self.stackedWidget.addWidget(self.bar_chart_page)
 
         self.gridLayout.addWidget(self.stackedWidget, 0, 1, 1, 1)
         self.setCentralWidget(self.centralwidget)
 
         self.save_button.clicked.connect(self.saveButtonHandler)
         self.xAxisColumn_comboBox.activated.connect(self.fillValuesComboBox)
-
+        self.saveBarChart_button.clicked.connect(self.saveBarChartHandler)
         self.stackedWidget.setCurrentIndex(0)
 
     def translateUi(self):
@@ -247,8 +250,8 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.yAxis_label.setText(translate("xyAxisWindow", "Y Axis"))
         self.selectColumn_label.setText(translate("xyAxisWindow", "Select Column:"))
         self.save_button.setText(translate("xyAxisWindow", "Save"))
-        self.histogramColumn_label.setText(translate("xyAxisWindow", "Select column:"))
-        self.saveHistogram_button.setText(translate("xyAxisWindow", "Save"))
+        self.barColumn_label.setText(translate("xyAxisWindow", "Select column:"))
+        self.saveBarChart_button.setText(translate("xyAxisWindow", "Save"))
 
     def set_table_data_frame(self, data):
         self.data_frame = data
@@ -270,9 +273,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
             QMessageBox.warning(self, "Warning", "Please input data before saving.")
             return
 
-        self.xAxisData = []
-        self.yAxisData = []
-
         # Retrieve the selected rows based on user input
         self.rows = self.data_frame.index[
             self.data_frame[self.xAxisColumn_comboBox.currentText()] == self.xAxisValues_comboBox.currentText()]
@@ -290,13 +290,25 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.savedSelectedXColumn = str(self.xAxisColumn_comboBox.currentText())
         self.savedSelectedXColumn2 = str(self.xAxisColumn2_comboBox.currentText())
         self.savedSelectedYColumn = str(self.yAxis_comboBox.currentText())
+        self.generate_button.setEnabled(True)
+        self.close()
 
+    def saveBarChartHandler(self):
+        if self.barChartColumn_combobox.currentText() == "":
+            QMessageBox.warning(self, "Warning", "Please input data before saving.")
+            return
+
+        self.barChartColumnData = self.data_frame[str(self.barChartColumn_combobox.currentText())].tolist()
+        self.generate_button.setEnabled(True)
+        self.savedSelectedBarColumn = str(self.barChartColumn_combobox.currentText())
         self.close()
 
     def load_saved_data(self):
         self.xAxisColumn_comboBox.setCurrentText(self.savedSelectedXColumn)
         self.xAxisColumn2_comboBox.setCurrentText(self.savedSelectedXColumn2)
         self.yAxis_comboBox.setCurrentText(self.savedSelectedYColumn)
+        self.close()
+
 
     def getxAxisData(self):
         return self.xAxisData
@@ -310,5 +322,11 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         elif state == 2:
             self.stackedWidget.setCurrentIndex(1)
 
+    def getBarChartColumnData(self):
+        return self.barChartColumnData
+
     def getRows(self):
         return self.rows
+
+    def setGenerateButton(self, button):
+        self.generate_button = button

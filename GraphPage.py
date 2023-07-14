@@ -1,14 +1,29 @@
+import numpy as np
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QButtonGroup, QFileDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QButtonGroup
+from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import pandas as pd
-import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from matplotlib import pyplot as plt
 
 import XYaxisWindow
+
+
+class PlotWindow(QMainWindow):
+    def __init__(self, title, parent=None, position=None):
+        super(PlotWindow, self).__init__(parent, Qt.Window)
+        self.setWindowTitle(title)
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        layout = QVBoxLayout()
+        layout.addWidget(self.canvas)
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+        if position is not None:
+            self.move(position)
 
 
 class GraphCanvas(FigureCanvas):
@@ -31,6 +46,7 @@ class GraphWindow(QtWidgets.QWidget):
 class GraphPage(QtWidgets.QWidget):
     def __init__(self):
         super(GraphPage, self).__init__()
+        self.bar_chart_data = None
         self.xy_axis_window = XYaxisWindow.XYaxisWindow()
         self.x_axis_data = []
         self.y_axis_data = []
@@ -169,7 +185,7 @@ class GraphPage(QtWidgets.QWidget):
         self.xy_axis_button.clicked.connect(self.xy_axis_handler)
 
         self.checkboxes = []
-        self.graph_window = GraphWindow()
+        # self.graph_window = GraphWindow()
 
     def toggleGraphType(self):
         self.PCA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
@@ -213,22 +229,24 @@ class GraphPage(QtWidgets.QWidget):
             checkbox.setVisible(text in checkbox.text().lower())
 
     def generate_graph_handler(self):
-        selected_columns = []
-        for checkbox in self.checkboxes:
-            if checkbox.isChecked():
-                selected_columns.append(checkbox.text())
 
-        graph_type = "scatter" if self.scatter_plot_radio.isChecked() else "bar"
+        self.x_axis_data = self.xy_axis_window.getxAxisData()
+        self.y_axis_data = self.xy_axis_window.getyAxisData()
+        self.bar_chart_data = self.xy_axis_window.getBarChartColumnData()
 
-        dimensionality_reduction = ""
-        if self.PCA_radio_button.isChecked():
-            dimensionality_reduction = "PCA"
-        elif self.tSNE_radio_button.isChecked():
-            dimensionality_reduction = "t-SNE"
-        elif self.UMAP_radio_button.isChecked():
-            dimensionality_reduction = "UMAP"
-
-        self.generate_graph_with_columns(selected_columns, graph_type, dimensionality_reduction)
+        # display scatter or bar chart
+        if self.scatter_plot_radio.isChecked():
+            graphWindow = PlotWindow('Plot 1', self)
+            graphWindow.move(0, 0)
+            ax = graphWindow.figure.add_subplot(111)
+            ax.plot(self.x_axis_data, self.y_axis_data, 'o')
+            graphWindow.show()
+        else:
+            graphWindow = PlotWindow('Plot 1', self)
+            graphWindow.move(0, 0)
+            ax = graphWindow.figure.add_subplot(111)
+            ax.bar(np.arange(len(self.bar_chart_data)), self.bar_chart_data)
+            graphWindow.show()
 
     def generate_graph_with_columns(self, columns, graph_type, dimensionality_reduction):
         data = self.data_frame[columns]
@@ -327,12 +345,12 @@ class GraphPage(QtWidgets.QWidget):
 
     def setupXyWindow(self):
         self.xy_axis_window.set_table_data_frame(self.data_frame)
-
+        self.xy_axis_window.setGenerateButton(self.generate_graph)
         for column in self.data_columns:
             self.xy_axis_window.xAxisColumn_comboBox.addItemToComboBox(column)
             self.xy_axis_window.xAxisColumn2_comboBox.addItemToComboBox(column)
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
-            self.xy_axis_window.histogramColumn_combobox.addItemToComboBox(column)
+            self.xy_axis_window.barChartColumn_combobox.addItemToComboBox(column)
 
     def xy_axis_handler(self):
         if self.scatter_plot_radio.isChecked():
