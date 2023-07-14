@@ -17,10 +17,6 @@ class AutoCompletingComboBox(QComboBox):
         self.completer().setModel(self.model())
 
 
-def saveHistogramButtonHandler():
-    print("worked")
-
-
 class XYaxisWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XYaxisWindow, self).__init__()
@@ -244,7 +240,7 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(translate("xyAxisWindow", "Graph Axis Setup"))
         self.xAxis_label.setText(translate("xyAxisWindow", "X Axis"))
-        self.xAxisColumn_label.setText(translate("xyAxisWindow", "From column: "))
+        self.xAxisColumn_label.setText(translate("xyAxisWindow", "Column to sample: "))
         self.xAxisValues_label.setText(translate("xyAxisWindow", "select values of: "))
         self.xAxisColumn2_label.setText(translate("xyAxisWindow", "Displaying values of column: "))
         self.yAxis_label.setText(translate("xyAxisWindow", "Y Axis"))
