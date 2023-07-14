@@ -36,10 +36,6 @@ class GraphPage(QtWidgets.QWidget):
         self.y_axis_data = []
         self.data_frame = None
         self.data_columns = None
-        self.search_text = None
-        self.timer = QtCore.QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.perform_search)
         self.setEnabled(True)
         self.setObjectName("graph_page")
         self.gridLayout_7 = QtWidgets.QGridLayout(self)
@@ -68,48 +64,12 @@ class GraphPage(QtWidgets.QWidget):
         self.xy_axis_button.setObjectName("xy_axis_button")
         self.xy_axis_button.setText("Setup X/Y Axis")
         self.vertical_layout_graph_left.addWidget(self.xy_axis_button)
+        # left side spacer
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.vertical_layout_graph_left.addItem(spacerItem1)
 
-        # Right Side
-        self.vertical_layout_graph_right = QtWidgets.QVBoxLayout()
-        self.vertical_layout_graph_right.setObjectName("vertical_layout_graph_right")
+        self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
 
-        # Search Bar / Check Box Area
-        self.check_all_horizontal_layout_2 = QtWidgets.QHBoxLayout()
-        self.check_all_horizontal_layout_2.setObjectName("check_all_horizontal_layout_2")
-        self.check_all_box_2 = QtWidgets.QCheckBox(self.graph_grid_frame)
-        self.check_all_box_2.setSizeIncrement(QtCore.QSize(0, 0))
-        self.check_all_box_2.setObjectName("Check_all_box_2")
-        self.check_all_box_2.setText("Check All")
-        self.check_all_box_2.setChecked(True)
-        self.check_all_horizontal_layout_2.addWidget(self.check_all_box_2)
-        self.searchbar_2 = QtWidgets.QLineEdit(self.graph_grid_frame)
-        self.searchbar_2.setObjectName("searchbar_2")
-        self.check_all_horizontal_layout_2.addWidget(self.searchbar_2)
-        self.vertical_layout_graph_right.addLayout(self.check_all_horizontal_layout_2)
-
-        # Scroll Area
-        self.scrollArea_2 = QtWidgets.QScrollArea(self.graph_grid_frame)
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollArea_2.setObjectName("scrollArea_2")
-        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 662, 178))
-        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_2)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
-        self.vertical_layout_graph_right.addWidget(self.scrollArea_2)
-
-        self.horizontal_layout_generate_button = QtWidgets.QHBoxLayout()
-        self.horizontal_layout_generate_button.setObjectName("horizontal_layout_generate_button")
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontal_layout_generate_button.addItem(spacerItem2)
-
-        # Generate Button
-        self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
-        self.generate_graph.setObjectName("generate_graph")
-        self.generate_graph.setText("Generate")
-        self.generate_graph.setEnabled(False)
-        self.horizontal_layout_generate_button.addWidget(self.generate_graph)
 
         # Left Side PCA.. Options
         self.graph_options = QtWidgets.QGridLayout()
@@ -135,14 +95,46 @@ class GraphPage(QtWidgets.QWidget):
         self.LDA_radio_button.setText("LDA")
         self.graph_options.addWidget(self.LDA_radio_button, 1, 1, 1, 1)
 
-        # Spacers
+        # graph options spacers
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.graph_options.addItem(spacerItem2, 2, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.graph_options.addItem(spacerItem3, 2, 0, 1, 1)
 
-        self.vertical_layout_graph_left.addItem(spacerItem1)
-        self.graph_options.addItem(spacerItem3, 2, 1, 1, 1)
-        self.graph_options.addItem(spacerItem4, 2, 0, 1, 1)
+        self.gridLayout_4.addLayout(self.graph_options, 0, 2, 1, 1)
+
+
+        # Right Side
+        self.vertical_layout_graph_right = QtWidgets.QVBoxLayout()
+        self.vertical_layout_graph_right.setObjectName("vertical_layout_graph_right")
+
+        # cluster button setup
+        self.cluster_horizontal_layout = QtWidgets.QHBoxLayout()
+        self.cluster_horizontal_layout.setObjectName("cluster_horizontal_layout")
+
+        self.cluster = QtWidgets.QCheckBox(self.graph_grid_frame)
+        self.cluster.setObjectName("cluster")
+        self.cluster.setText("Cluster")
+        self.cluster_horizontal_layout.addWidget(self.cluster)
+        self.vertical_layout_graph_right.addLayout(self.cluster_horizontal_layout)
+
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.vertical_layout_graph_right.addItem(spacerItem4)
+
+        self.horizontal_layout_generate_button = QtWidgets.QHBoxLayout()
+        self.horizontal_layout_generate_button.setObjectName("horizontal_layout_generate_button")
+        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontal_layout_generate_button.addItem(spacerItem5)
+
+
+        # Generate Button
+        self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
+        self.generate_graph.setObjectName("generate_graph")
+        self.generate_graph.setText("Generate")
+        self.generate_graph.setEnabled(False)
+        self.horizontal_layout_generate_button.addWidget(self.generate_graph)
+        self.vertical_layout_graph_right.addLayout(self.cluster_horizontal_layout)
+
 
         self.graph_type_button_group = QButtonGroup(self)
         self.dimensionality_button_group = QButtonGroup(self)
@@ -155,16 +147,13 @@ class GraphPage(QtWidgets.QWidget):
         self.dimensionality_button_group.addButton(self.UMAP_radio_button)
         self.dimensionality_button_group.addButton(self.LDA_radio_button)
 
-        # Layouts
-        self.gridLayout_4.addLayout(self.graph_options, 0, 2, 1, 1)
-        self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
+
         self.vertical_layout_graph_right.addLayout(self.horizontal_layout_generate_button)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 3, 1, 1)
-        self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
+
 
         # Signal Handlers
-        self.check_all_box_2.stateChanged.connect(self.toggleAllCheckboxes)
-        self.searchbar_2.textChanged.connect(self.handleSearch)
         self.generate_graph.clicked.connect(self.generate_graph_handler)
         self.xy_axis_button.clicked.connect(self.xy_axis_handler)
 
@@ -183,33 +172,6 @@ class GraphPage(QtWidgets.QWidget):
             or self.UMAP_radio_button.isChecked()
             or self.LDA_radio_button.isChecked())
 
-    def display_data_columns(self, columns):
-        for i in range(self.gridLayout_5.count()):
-            widget = self.gridLayout_5.itemAt(i).widget()
-            if widget is not None:
-                widget.deleteLater()
-
-        self.checkboxes = []
-        for i, column in enumerate(columns):
-            checkbox = QtWidgets.QCheckBox(column, self.scrollAreaWidgetContents_2)
-            checkbox.setChecked(True)
-            self.gridLayout_5.addWidget(checkbox, i, 0, 1, 1)
-            self.checkboxes.append(checkbox)
-
-    def toggleAllCheckboxes(self, state):
-        for checkbox in self.checkboxes:
-            checkbox.setChecked(state == QtCore.Qt.Checked)
-
-    def handleSearch(self, text):
-        self.search_text = text
-        self.timer.stop()
-        if len(self.search_text) > 2:
-            self.timer.start(1000)
-
-    def perform_search(self):
-        text = self.search_text.lower()
-        for checkbox in self.checkboxes:
-            checkbox.setVisible(text in checkbox.text().lower())
 
     def generate_graph_handler(self):
 
