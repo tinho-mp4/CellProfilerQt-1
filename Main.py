@@ -521,8 +521,6 @@ def main():
     ui = UiMainWindow()
     ui.setupUi(Main_window)
     Main_window.show()
-
-
     sys.exit(app.exec_())
 
 
