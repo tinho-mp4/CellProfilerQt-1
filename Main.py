@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (
 )
 import CSVHandler
 from GraphPage import GraphPage
-from SettingsWindow import SettingWindow
 
 
 class UiMainWindow(object):
@@ -259,7 +258,6 @@ class UiMainWindow(object):
 
         self.types_button.clicked.connect(lambda: self.onNamesTypesClicked(self.stacked_pages))
         self.graph_button.clicked.connect(lambda: self.onGraphClicked(self.stacked_pages))
-        self.settings_button.clicked.connect(self.onSettingsClicked)
 
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
@@ -497,10 +495,6 @@ class UiMainWindow(object):
             message_box.setWindowTitle("No CSV Data")
             message_box.setText("No CSV data loaded. Please load a CSV file before accessing the Graph.")
             message_box.exec_()
-
-    def onSettingsClicked(self):
-        self.settings_window = SettingWindow()
-        self.settings_window.show()
 
     def retranslateUi(self, Main_window):
         translate = QtCore.QCoreApplication.translate
