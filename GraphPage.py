@@ -148,8 +148,8 @@ class GraphPage(QtWidgets.QWidget):
         self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
 
         # Signal Handlers
-        self.generate_graph.clicked.connect(self.generate_graph_handler)
-        self.xy_axis_button.clicked.connect(self.xy_axis_handler)
+        self.generate_graph.clicked.connect(self.generateGraphHandler)
+        self.xy_axis_button.clicked.connect(self.xyAxisHandler)
 
         self.checkboxes = []
 
@@ -166,7 +166,7 @@ class GraphPage(QtWidgets.QWidget):
             or self.UMAP_radio_button.isChecked()
             or self.LDA_radio_button.isChecked())
 
-    def generate_graph_handler(self):
+    def generateGraphHandler(self):
 
         self.x_axis_data = self.xy_axis_window.getxAxisData()
         self.y_axis_data = self.xy_axis_window.getyAxisData()
@@ -202,20 +202,20 @@ class GraphPage(QtWidgets.QWidget):
             self.xy_axis_window.yAxis_comboBox.addItemToComboBox(column)
             self.xy_axis_window.barChartColumn_combobox.addItemToComboBox(column)
 
-    def xy_axis_handler(self):
+    def xyAxisHandler(self):
         if self.scatter_plot_radio.isChecked():
             self.xy_axis_window.displayPage(1)
         elif self.bar_graph_radio.isChecked():
             self.xy_axis_window.displayPage(2)
         # Load saved data if available
-        self.xy_axis_window.load_saved_data()
+        self.xy_axis_window.loadSavedData()
         self.xy_axis_window.show()
 
-    def handle_x_axis_data(self):
+    def handleXAxisData(self):
         self.x_axis_data = self.xy_axis_window.getxAxisData()
 
-    def set_table_data_columns(self, columns):
+    def setTableDataColumns(self, columns):
         self.data_columns = columns
 
-    def set_table_data_frame(self, data_frame):
+    def setTableDataFrame(self, data_frame):
         self.data_frame = data_frame

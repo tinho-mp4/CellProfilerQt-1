@@ -299,7 +299,7 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.savedSelectedBarColumn = str(self.barChartColumn_combobox.currentText())
         self.close()
 
-    def load_saved_data(self):
+    def loadSavedData(self):
         self.xAxisColumn_comboBox.setCurrentText(self.savedSelectedXColumn)
         self.xAxisColumn2_comboBox.setCurrentText(self.savedSelectedXColumn2)
         self.yAxis_comboBox.setCurrentText(self.savedSelectedYColumn)
