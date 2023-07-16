@@ -305,7 +305,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.yAxis_comboBox.setCurrentText(self.savedSelectedYColumn)
         self.close()
 
-
     def getxAxisData(self):
         return self.xAxisData
 

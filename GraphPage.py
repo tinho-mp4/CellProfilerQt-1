@@ -70,7 +70,6 @@ class GraphPage(QtWidgets.QWidget):
 
         self.gridLayout_4.addLayout(self.vertical_layout_graph_left, 0, 0, 1, 1)
 
-
         # Left Side PCA.. Options
         self.graph_options = QtWidgets.QGridLayout()
         self.graph_options.setObjectName("graph_options")
@@ -103,7 +102,6 @@ class GraphPage(QtWidgets.QWidget):
 
         self.gridLayout_4.addLayout(self.graph_options, 0, 2, 1, 1)
 
-
         # Right Side
         self.vertical_layout_graph_right = QtWidgets.QVBoxLayout()
         self.vertical_layout_graph_right.setObjectName("vertical_layout_graph_right")
@@ -126,7 +124,6 @@ class GraphPage(QtWidgets.QWidget):
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontal_layout_generate_button.addItem(spacerItem5)
 
-
         # Generate Button
         self.generate_graph = QtWidgets.QPushButton(self.graph_grid_frame)
         self.generate_graph.setObjectName("generate_graph")
@@ -134,7 +131,6 @@ class GraphPage(QtWidgets.QWidget):
         self.generate_graph.setEnabled(False)
         self.horizontal_layout_generate_button.addWidget(self.generate_graph)
         self.vertical_layout_graph_right.addLayout(self.cluster_horizontal_layout)
-
 
         self.graph_type_button_group = QButtonGroup(self)
         self.dimensionality_button_group = QButtonGroup(self)
@@ -147,11 +143,9 @@ class GraphPage(QtWidgets.QWidget):
         self.dimensionality_button_group.addButton(self.UMAP_radio_button)
         self.dimensionality_button_group.addButton(self.LDA_radio_button)
 
-
         self.vertical_layout_graph_right.addLayout(self.horizontal_layout_generate_button)
         self.gridLayout_4.addLayout(self.vertical_layout_graph_right, 0, 3, 1, 1)
         self.gridLayout_7.addWidget(self.graph_grid_frame, 0, 0, 1, 1)
-
 
         # Signal Handlers
         self.generate_graph.clicked.connect(self.generate_graph_handler)
@@ -171,7 +165,6 @@ class GraphPage(QtWidgets.QWidget):
             or self.tSNE_radio_button.isChecked()
             or self.UMAP_radio_button.isChecked()
             or self.LDA_radio_button.isChecked())
-
 
     def generate_graph_handler(self):
 

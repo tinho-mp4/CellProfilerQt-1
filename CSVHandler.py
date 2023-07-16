@@ -45,17 +45,14 @@ def browseFile():
     return filename
 
 
-
-
 def loadCSVFile(filename):
     if filename:
         try:
             dask_df = dd.read_csv(filename, assume_missing=True)
-            return dask_df.compute()  # Convert to Pandas DataFrame.
+            return dask_df.compute()
         except Exception as e:
             print(f"Error: {e}")
     return None
-
 
 
 def exportCSVFile(filename, data):
