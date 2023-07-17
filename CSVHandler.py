@@ -39,7 +39,9 @@ def browseFile():
     file_dialog = QFileDialog()
     options = QFileDialog.Options()
     options |= QFileDialog.ReadOnly
-    filename, _ = file_dialog.getOpenFileName(None, "Open CSV file", "", "CSV Files (*.csv)", options=options)
+    filename, _ = file_dialog.getOpenFileName(
+        None, "Open CSV file", "", "CSV Files (*.csv)", options=options
+    )
     directory = os.path.dirname(filename) if filename else ""
     file_dialog.setDirectory(directory)
     return filename
