@@ -186,6 +186,7 @@ class GraphPage(QtWidgets.QWidget):
             graphWindow.move(0, 0)
             ax = graphWindow.figure.add_subplot(111)
             ax.bar(np.arange(len(self.bar_chart_data)), self.bar_chart_data)
+            ax.set_xlabel("Well")
             ax.set_ylabel(self.xy_axis_window.barChartColumn_combobox.currentText())
             graphWindow.show()
 
