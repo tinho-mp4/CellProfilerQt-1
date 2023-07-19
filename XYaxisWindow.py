@@ -4,7 +4,17 @@ from PyQt5.QtWidgets import QComboBox, QCompleter, QMessageBox
 
 
 class AutoCompletingComboBox(QComboBox):
+    """
+    Custom combo box class that supports auto-completion and editing.
+    """
+
     def __init__(self, parent=None):
+        """
+        Initializes the AutoCompletingComboBox.
+
+        Args:
+            parent (QWidget): The parent widget.
+        """
         super().__init__(parent)
         self.setEditable(True)
         self.lineEdit().setAlignment(Qt.AlignLeft)
@@ -13,12 +23,25 @@ class AutoCompletingComboBox(QComboBox):
         self.setInsertPolicy(QComboBox.NoInsert)
 
     def addItemToComboBox(self, item):
+        """
+        Adds an item to the combo box.
+
+        Args:
+            item: The item to add to the combo box.
+        """
         super().addItem(item)
         self.completer().setModel(self.model())
 
 
 class XYaxisWindow(QtWidgets.QMainWindow):
+    """
+    QMainWindow subclass for XY Axis Window.
+    """
+
     def __init__(self):
+        """
+        Initializes the XYaxisWindow.
+        """
         super(XYaxisWindow, self).__init__()
         self.savedSelectedBarColumn = None
         self.generate_button = None
@@ -72,6 +95,9 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def setupUi(self):
+        """
+        Sets up the user interface for the XYaxisWindow.
+        """
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
@@ -86,7 +112,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.scatterplot_main_layout.setObjectName("scatter_plot_main_layout")
 
         # X-Axis
-
         self.xAxis_label = QtWidgets.QLabel(self.scatter_plot_page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHeightForWidth(self.xAxis_label.sizePolicy().hasHeightForWidth())
@@ -189,7 +214,6 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.stackedWidget.addWidget(self.scatter_plot_page)
 
         # Histogram page
-
         self.bar_chart_page = QtWidgets.QWidget()
         self.bar_chart_page.setObjectName("histogram_page")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.bar_chart_page)
@@ -237,6 +261,10 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.stackedWidget.setCurrentIndex(0)
 
     def translateUi(self):
+        """
+        Retranslate the UI components to the specified main window.
+
+        """
         translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(translate("xyAxisWindow", "Graph Axis Setup"))
         self.xAxis_label.setText(translate("xyAxisWindow", "X Axis"))
@@ -249,20 +277,39 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.barColumn_label.setText(translate("xyAxisWindow", "Select column:"))
         self.saveBarChart_button.setText(translate("xyAxisWindow", "Save"))
 
-    def set_table_data_frame(self, data):
+    def set_table_dataframe(self, data):
+        """
+        Sets the data frame for the table.
+
+        Args:
+            data (pd.DataFrame): The data frame for the table.
+        """
         self.data_frame = data
 
     def fillValuesComboBox(self):
+        """
+        Fills the values combo box based on the selected column.
+        """
         self.xAxisValues_comboBox.clear()
         self.items.clear()
+
+        # Get the selected text from the combo box
         text = self.xAxisColumn_comboBox.currentText()
+
+        # Get the column values for the selected text
         column_values = self.data_frame[text]
+
+        # Add unique values to the combo box
         for value in column_values:
             if value not in self.items:
                 self.items.add(value)
                 self.xAxisValues_comboBox.addItemToComboBox(str(value))
 
     def saveButtonHandler(self):
+        """
+        Handles the save button click event.
+        """
+        # Check if required fields are empty
         if (self.xAxisColumn_comboBox.currentText() == "" or
                 self.xAxisColumn2_comboBox.currentText() == "" or
                 self.yAxis_comboBox.currentText() == ""):
@@ -283,13 +330,19 @@ class XYaxisWindow(QtWidgets.QMainWindow):
             self.yAxisData.append(
                 self.data_frame.at[self.data_frame.index[row], str(self.yAxis_comboBox.currentText())])
 
+        # Save selected column values
         self.savedSelectedXColumn = str(self.xAxisColumn_comboBox.currentText())
         self.savedSelectedXColumn2 = str(self.xAxisColumn2_comboBox.currentText())
         self.savedSelectedYColumn = str(self.yAxis_comboBox.currentText())
+
+        # Enable generate button
         self.generate_button.setEnabled(True)
         self.close()
 
     def saveBarChartHandler(self):
+        """
+        Handles the save button click event for the bar chart.
+        """
         if self.barChartColumn_combobox.currentText() == "":
             QMessageBox.warning(self, "Warning", "Please input data before saving.")
             return
@@ -300,28 +353,67 @@ class XYaxisWindow(QtWidgets.QMainWindow):
         self.close()
 
     def loadSavedData(self):
+        """
+        Loads the saved data into the UI components.
+        """
         self.xAxisColumn_comboBox.setCurrentText(self.savedSelectedXColumn)
         self.xAxisColumn2_comboBox.setCurrentText(self.savedSelectedXColumn2)
         self.yAxis_comboBox.setCurrentText(self.savedSelectedYColumn)
         self.close()
 
     def getxAxisData(self):
+        """
+        Returns the X-axis data.
+
+        Returns:
+            list: The X-axis data.
+        """
         return self.xAxisData
 
     def getyAxisData(self):
+        """
+        Returns the Y-axis data.
+
+        Returns:
+            list: The Y-axis data.
+        """
         return self.yAxisData
 
     def displayPage(self, state):
+        """
+        Sets the current index of the stackedWidget based on the state.
+
+        Args:
+            state (int): The state of the page to display.
+        """
         if state == 1:
             self.stackedWidget.setCurrentIndex(0)
         elif state == 2:
             self.stackedWidget.setCurrentIndex(1)
 
     def getBarChartColumnData(self):
+        """
+        Returns the data for the bar chart column.
+
+        Returns:
+            list: The data for the bar chart column.
+        """
         return self.barChartColumnData
 
     def getRows(self):
+        """
+        Returns the selected rows.
+
+        Returns:
+            list: The selected rows.
+        """
         return self.rows
 
     def setGenerateButton(self, button):
+        """
+        Sets the generate button.
+
+        Args:
+            button (QPushButton): The generate button.
+        """
         self.generate_button = button
