@@ -21,8 +21,13 @@ from GraphPage import GraphPage
 
 
 class UiMainWindow(object):
-
+    """
+    User interface for the main window.
+    """
     def __init__(self):
+        """
+        Initializes the attributes of the UiMainWindow class.
+        """
         self.actionRevertData = None
         self.modifications_applied = False
         self.original_data = None
@@ -75,6 +80,12 @@ class UiMainWindow(object):
         self.centralwidget = None
 
     def setupUi(self, Main_window):
+        """
+        Sets up the user interface for the main window.
+
+        Args:
+            Main_window: The main window object.
+        """
         Main_window.setObjectName("Cell Profiler")
         Main_window.resize(760, 410)
         # Set application icon
@@ -265,6 +276,15 @@ class UiMainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(Main_window)
 
     def loadCSV(self):
+        """
+        Load a CSV file into the application.
+
+        This method prompts the user to select a CSV file, loads the file, and updates the UI accordingly.
+
+        Raises:
+            Exception: If an error occurs while loading the CSV file.
+
+        """
         try:
             filename = CSVHandler.browseFile()
             if filename:
@@ -291,6 +311,13 @@ class UiMainWindow(object):
             QMessageBox.critical(None, "CSV Loading Error", error_message, QMessageBox.Ok)
 
     def createCheckboxes(self, columns):
+        """
+        Create checkboxes for each column in the given list.
+
+        Args:
+            columns: A list of column names.
+
+        """
         self.checkboxes = []
         for i in range(self.gridLayout.count()):
             widget = self.gridLayout.itemAt(i).widget()
@@ -305,9 +332,27 @@ class UiMainWindow(object):
             self.checkboxes.append(checkbox)
 
     def toggleColumn(self, column, state):
+        """
+        Toggle the visibility of a column in the table.
+
+        Args:
+            column: The index of the column to toggle.
+            state: The state of the checkbox (checked or unchecked).
+
+        """
         self.tableView.setColumnHidden(column, not bool(state))
 
     def displayData(self, data):
+        """
+        Display the given data in the table.
+
+        Args:
+            data: The data to display.
+
+        Raises:
+            Exception: If an error occurs while displaying the data.
+
+        """
         try:
             if data is not None:
                 self.model.clear()
@@ -328,17 +373,35 @@ class UiMainWindow(object):
             QMessageBox.critical(None, "Error", f"Error: {e}", QMessageBox.Ok, QMessageBox.Critical)
 
     def handleSearch(self, text):
+        """
+        Handle the search action.
+
+        Args:
+            text: The search text.
+
+        """
         self.search_text = text
         self.search_timer.stop()
         if len(self.search_text) > 2:
             self.search_timer.start(1000)
 
     def performSearch(self):
+        """
+        Perform the search operation based on the search text.
+
+        """
         text = self.search_text.lower()
         for checkbox in self.checkboxes:
             checkbox.setVisible(text in checkbox.text().lower())
 
     def handleItemChanged(self, item):
+        """
+        Handle the item state change in the table.
+
+        Args:
+            item: The item that changed.
+
+        """
         if item.isCheckable() and (item.checkState() == QtCore.Qt.Checked):
             for index in range(self.model.rowCount()):
                 self.model.item(index, item.column()).setEnabled(False)
@@ -348,6 +411,14 @@ class UiMainWindow(object):
 
     @staticmethod
     def toggleFullScreen(window, action):
+        """
+        Toggle the full-screen mode for the given window.
+
+        Args:
+            window: The window to toggle full-screen.
+            action: The action triggered by the full-screen toggle.
+
+        """
         if window.isFullScreen():
             window.showNormal()
             window.setWindowState(Qt.WindowNoState)
@@ -357,6 +428,13 @@ class UiMainWindow(object):
             action.setText("Restore Normal Size")
 
     def checkAll(self, state):
+        """
+        Check or uncheck all checkboxes in the table.
+
+        Args:
+            state: The state to set for the checkboxes (checked or unchecked).
+
+        """
         self.Check_all_box.setEnabled(True)
         self.searchbar.setEnabled(True)
 
@@ -373,6 +451,10 @@ class UiMainWindow(object):
             checkbox.setChecked(state == QtCore.Qt.Checked)
 
     def normalizeData(self):
+        """
+        Normalize the data in the table.
+
+        """
         try:
             self.modifications_applied = True
             self.updateRevertMenuState()
@@ -414,6 +496,10 @@ class UiMainWindow(object):
             QMessageBox.critical(None, "Normalization Error", error_message, QMessageBox.Ok, QMessageBox.Critical)
 
     def removeNA(self):
+        """
+        Remove rows with missing values from the data.
+
+        """
         try:
             self.modifications_applied = True
             self.updateRevertMenuState()
@@ -438,6 +524,10 @@ class UiMainWindow(object):
             )
 
     def revertToOriginalData(self):
+        """
+        Revert the data to the original dataset.
+
+        """
         if self.modifications_applied:
             self.data = self.original_data.copy()
             self.displayData(self.data)
@@ -453,9 +543,17 @@ class UiMainWindow(object):
                                 QMessageBox.Ok)
 
     def updateRevertMenuState(self):
+        """
+        Update the state of the "Revert Data" menu item based on the modifications applied.
+
+        """
         self.actionRevertData.setEnabled(self.modifications_applied)
 
     def exportCSV(self):
+        """
+        Export the data to a CSV file.
+
+        """
         try:
             if self.data is not None:
                 selected_columns = []
@@ -481,9 +579,23 @@ class UiMainWindow(object):
             QMessageBox.critical(None, "Export CSV Error", error_message, QMessageBox.Ok)
 
     def onNamesTypesClicked(self, stacked_pages):
+        """
+        Handle the click event of the "Names / Types" button.
+
+        Args:
+            stacked_pages: The stacked widget containing the different pages.
+
+        """
         stacked_pages.setCurrentWidget(self.names_types_page)
 
     def onGraphClicked(self, stacked_pages):
+        """
+        Handle the click event of the "Graph" button.
+
+        Args:
+            stacked_pages: The stacked widget containing the different pages.
+
+        """
         if self.data is not None:
             stacked_pages.setCurrentWidget(self.graph_page)
             self.graph_page.setTableDataFrame(self.data)
@@ -499,6 +611,13 @@ class UiMainWindow(object):
             message_box.exec_()
 
     def retranslateUi(self, Main_window):
+        """
+        Retranslate the UI components to the specified main window.
+
+        Args:
+            Main_window: The main window to retranslate the UI components.
+
+        """
         translate = QtCore.QCoreApplication.translate
         Main_window.setWindowTitle(translate("MainWindow", "Cell Profiler"))
         self.modules_label.setText(translate("MainWindow", "Modules"))
@@ -517,6 +636,10 @@ class UiMainWindow(object):
 
 
 def main():
+    """
+    The main entry point of the application.
+
+    """
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Main_window = QtWidgets.QMainWindow()
