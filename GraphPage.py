@@ -7,6 +7,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
 
 import XYaxisWindow
 
@@ -35,6 +36,23 @@ class PlotWindow(QMainWindow):
         self.setCentralWidget(widget)
         if position is not None:
             self.move(position)
+
+
+def applyClustering(data):
+    """
+    Applies clustering to the data.
+
+    Args:
+        data (np.ndarray): The data to be clustered.
+
+    Returns:
+        np.ndarray: The clustered data.
+    """
+    # Apply clustering algorithm (e.g., KMeans) to the data
+    kmeans = KMeans(n_clusters=3)  # Adjust the number of clusters as needed
+    clusters = kmeans.fit_predict(data)
+
+    return clusters
 
 
 class GraphPage(QtWidgets.QWidget):
@@ -76,6 +94,9 @@ class GraphPage(QtWidgets.QWidget):
         self.bar_graph_radio.setObjectName("bar_graph_radio")
         self.bar_graph_radio.setText("Bar Graph")
         self.vertical_layout_graph_left.addWidget(self.bar_graph_radio)
+
+        self.scatter_plot_radio.clicked.connect(self.toggleGraphType)
+        self.bar_graph_radio.clicked.connect(self.toggleGraphType)
 
         self.xy_axis_button = QtWidgets.QPushButton(self.graph_grid_frame)
         self.xy_axis_button.setObjectName("xy_axis_button")
@@ -172,12 +193,15 @@ class GraphPage(QtWidgets.QWidget):
 
     def toggleGraphType(self):
         """
-        Enables or disables radio buttons based on the selected graph type.
+        Enables or disables radio buttons and checkboxes based on the selected graph type.
         """
         self.PCA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.tSNE_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.UMAP_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.LDA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
+
+        # Enable or disable the "Cluster" checkbox based on the selected graph type
+        self.cluster.setEnabled(self.scatter_plot_radio.isChecked())
 
     def toggleDimensionalityScaling(self):
         """
@@ -203,7 +227,14 @@ class GraphPage(QtWidgets.QWidget):
             graphWindow = PlotWindow('Plot 1', self)
             graphWindow.move(0, 0)
             ax = graphWindow.figure.add_subplot(111)
-            ax.plot(self.x_axis_data, self.y_axis_data, 'o')
+
+            if self.cluster.isChecked():
+                data = np.column_stack((self.x_axis_data, self.y_axis_data))
+                clusters = self.applyClustering(data)
+                ax.scatter(self.x_axis_data, self.y_axis_data, c=clusters)
+            else:
+                ax.plot(self.x_axis_data, self.y_axis_data, 'o')
+
             ax.set_xlabel(str(self.xy_axis_window.xAxisColumn2_comboBox.currentText()))
             ax.set_ylabel(str(self.xy_axis_window.yAxis_comboBox.currentText()))
             graphWindow.show()
@@ -216,6 +247,22 @@ class GraphPage(QtWidgets.QWidget):
             ax.set_xlabel("Well")
             ax.set_ylabel(self.xy_axis_window.barChartColumn_combobox.currentText())
             graphWindow.show()
+
+    def applyClustering(self, data):
+        """
+        Applies clustering to the data.
+
+        Args:
+            data (np.ndarray): The data to be clustered.
+
+        Returns:
+            np.ndarray: The clustered data.
+        """
+        # Apply clustering algorithm (e.g., KMeans) to the data
+        kmeans = KMeans(n_clusters=3, n_init=10) # Adjust the number of clusters as needed
+        clusters = kmeans.fit_predict(data)
+
+        return clusters
 
     def setupXyWindow(self):
         """
