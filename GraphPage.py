@@ -12,7 +12,18 @@ import XYaxisWindow
 
 
 class PlotWindow(QMainWindow):
+    """
+    A window for displaying a plot.
+    """
     def __init__(self, title, parent=None, position=None):
+        """
+        Initializes the PlotWindow.
+
+        Args:
+            title (str): The title of the window.
+            parent (QWidget): The parent widget.
+            position (QPoint): The position of the window.
+        """
         super(PlotWindow, self).__init__(parent, Qt.Window)
         self.setWindowTitle(title)
         self.figure = Figure()
@@ -27,7 +38,13 @@ class PlotWindow(QMainWindow):
 
 
 class GraphPage(QtWidgets.QWidget):
+    """
+    A class representing a graphical page for displaying and interacting with graphs.
+    """
     def __init__(self):
+        """
+         Initializes the GraphPage.
+         """
         super(GraphPage, self).__init__()
         self.graph_window = None
         self.bar_chart_data = None
@@ -154,12 +171,18 @@ class GraphPage(QtWidgets.QWidget):
         self.checkboxes = []
 
     def toggleGraphType(self):
+        """
+        Enables or disables radio buttons based on the selected graph type.
+        """
         self.PCA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.tSNE_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.UMAP_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
         self.LDA_radio_button.setEnabled(self.scatter_plot_radio.isChecked())
 
     def toggleDimensionalityScaling(self):
+        """
+        Enables or disables the scatter plot radio button based on the selected dimensionality scaling options.
+        """
         self.scatter_plot_radio.setEnabled(
             self.PCA_radio_button.isChecked()
             or self.tSNE_radio_button.isChecked()
@@ -167,13 +190,16 @@ class GraphPage(QtWidgets.QWidget):
             or self.LDA_radio_button.isChecked())
 
     def generateGraphHandler(self):
-
+        """
+        Generates and displays the selected graph based on the user's inputs.
+        """
         self.x_axis_data = self.xy_axis_window.getxAxisData()
         self.y_axis_data = self.xy_axis_window.getyAxisData()
         self.bar_chart_data = self.xy_axis_window.getBarChartColumnData()
 
-        # display scatter or bar chart
+        # Display scatter or bar chart based on the selected radio button
         if self.scatter_plot_radio.isChecked():
+            # Create a scatter plot
             graphWindow = PlotWindow('Plot 1', self)
             graphWindow.move(0, 0)
             ax = graphWindow.figure.add_subplot(111)
@@ -182,6 +208,7 @@ class GraphPage(QtWidgets.QWidget):
             ax.set_ylabel(str(self.xy_axis_window.yAxis_comboBox.currentText()))
             graphWindow.show()
         else:
+            # Create a bar chart
             graphWindow = PlotWindow('Plot 1', self)
             graphWindow.move(0, 0)
             ax = graphWindow.figure.add_subplot(111)
@@ -191,7 +218,10 @@ class GraphPage(QtWidgets.QWidget):
             graphWindow.show()
 
     def setupXyWindow(self):
-        self.xy_axis_window.set_table_data_frame(self.data_frame)
+        """
+        Sets up the XY Axis Window with data and options.
+        """
+        self.xy_axis_window.set_table_dataframe(self.data_frame)
         self.xy_axis_window.setGenerateButton(self.generate_graph)
         self.xy_axis_window.xAxisColumn_comboBox.clear()
         self.xy_axis_window.xAxisColumn2_comboBox.clear()
@@ -204,6 +234,9 @@ class GraphPage(QtWidgets.QWidget):
             self.xy_axis_window.barChartColumn_combobox.addItemToComboBox(column)
 
     def xyAxisHandler(self):
+        """
+        Handles the action when the XY Axis button is clicked.
+        """
         if self.scatter_plot_radio.isChecked():
             self.xy_axis_window.displayPage(1)
         elif self.bar_graph_radio.isChecked():
@@ -213,10 +246,25 @@ class GraphPage(QtWidgets.QWidget):
         self.xy_axis_window.show()
 
     def handleXAxisData(self):
+        """
+        Handles the X-axis data from the XY Axis Window.
+        """
         self.x_axis_data = self.xy_axis_window.getxAxisData()
 
     def setTableDataColumns(self, columns):
+        """
+        Sets the columns of the table data.
+
+        Args:
+            columns (list): The list of column names.
+        """
         self.data_columns = columns
 
     def setTableDataFrame(self, data_frame):
+        """
+        Sets the data frame of the table.
+
+        Args:
+            data_frame (pd.DataFrame): The data frame of the table.
+        """
         self.data_frame = data_frame
