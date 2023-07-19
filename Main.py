@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
 )
 import CSVHandler
 from GraphPage import GraphPage
+import re
 
 
 class UiMainWindow(object):
@@ -380,34 +381,38 @@ class UiMainWindow(object):
             text: The search text.
 
         """
-        self.search_text = text
+        self.search_text = text.strip()
         self.search_timer.stop()
-        if len(self.search_text) > 2:
+        if len(self.search_text) > 0:
             self.search_timer.start(1000)
+        else:
+            # If the search text is empty, restore the scroll area
+            self.restoreScrollArea()
 
     def performSearch(self):
         """
         Perform the search operation based on the search text.
 
         """
-        text = self.search_text.lower()
+        text = self.search_text
+        if not text:
+            # If the search text is empty, restore the scroll area
+            self.restoreScrollArea()
+        else:
+            for checkbox in self.checkboxes:
+                checkbox_text = checkbox.text()
+                if checkbox_text.startswith(text) and checkbox_text[:len(text)].isupper():
+                    checkbox.setVisible(True)
+                else:
+                    checkbox.setVisible(False)
+
+    def restoreScrollArea(self):
+        """
+        Restore the scroll area to show all checkboxes.
+
+        """
         for checkbox in self.checkboxes:
-            checkbox.setVisible(text in checkbox.text().lower())
-
-    def handleItemChanged(self, item):
-        """
-        Handle the item state change in the table.
-
-        Args:
-            item: The item that changed.
-
-        """
-        if item.isCheckable() and (item.checkState() == QtCore.Qt.Checked):
-            for index in range(self.model.rowCount()):
-                self.model.item(index, item.column()).setEnabled(False)
-        elif item.isCheckable() and (item.checkState() == QtCore.Qt.Unchecked):
-            for index in range(self.model.rowCount()):
-                self.model.item(index, item.column()).setEnabled(True)
+            checkbox.setVisible(True)
 
     @staticmethod
     def toggleFullScreen(window, action):

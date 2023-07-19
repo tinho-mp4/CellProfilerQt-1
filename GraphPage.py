@@ -16,6 +16,7 @@ class PlotWindow(QMainWindow):
     """
     A window for displaying a plot.
     """
+
     def __init__(self, title, parent=None, position=None):
         """
         Initializes the PlotWindow.
@@ -59,6 +60,7 @@ class GraphPage(QtWidgets.QWidget):
     """
     A class representing a graphical page for displaying and interacting with graphs.
     """
+
     def __init__(self):
         """
          Initializes the GraphPage.
@@ -259,7 +261,7 @@ class GraphPage(QtWidgets.QWidget):
             np.ndarray: The clustered data.
         """
         # Apply clustering algorithm (e.g., KMeans) to the data
-        kmeans = KMeans(n_clusters=3, n_init=10) # Adjust the number of clusters as needed
+        kmeans = KMeans(n_clusters=3, n_init=10)  # Adjust the number of clusters as needed
         clusters = kmeans.fit_predict(data)
 
         return clusters
