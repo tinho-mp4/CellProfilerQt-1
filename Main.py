@@ -392,20 +392,41 @@ class UiMainWindow(object):
     def performSearch(self):
         """
         Perform the search operation based on the search text.
-
         """
         text = self.search_text
         if not text:
             # If the search text is empty, restore the scroll area
             self.restoreScrollArea()
         else:
+            # Split the search text into words
+            search_words = text.split()
+
             for checkbox in self.checkboxes:
                 checkbox_text = checkbox.text()
-                if checkbox_text.startswith(text) and checkbox_text[:len(text)].isupper():
+                checkbox_text_lower = checkbox_text.lower()
+
+                # Check if any word in the search text is present at the beginning of the checkbox text
+                if any(checkbox_text.startswith(word) and word.isupper() for word in search_words):
                     checkbox.setVisible(True)
                 else:
-                    checkbox.setVisible(False)
+                    # Check if any word in the search text is present in the checkbox text (case-insensitive)
+                    regex_pattern = r'\b(?:' + '|'.join(re.escape(word) for word in search_words) + r')\b'
+                    regex = re.compile(regex_pattern, re.IGNORECASE)
+                    match = regex.search(checkbox_text)
 
+                    # Check if any of the search words in sentence case is present in the checkbox text
+                    for word in search_words:
+                        if word.istitle() and word.lower() in checkbox_text_lower:
+                            match = True
+                            break
+
+                    # Check if any of the search words in uppercase is present in the checkbox text
+                    for word in search_words:
+                        if word.isupper() and word in checkbox_text:
+                            match = False
+                            break
+
+                    checkbox.setVisible(bool(match))
     def restoreScrollArea(self):
         """
         Restore the scroll area to show all checkboxes.
