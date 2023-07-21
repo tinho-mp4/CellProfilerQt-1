@@ -25,6 +25,7 @@ class UiMainWindow(object):
     """
     User interface for the main window.
     """
+
     def __init__(self):
         """
         Initializes the attributes of the UiMainWindow class.
@@ -291,11 +292,12 @@ class UiMainWindow(object):
             if filename:
                 self.file_loaded_label.setText(f"File Loaded: {os.path.basename(filename)}")
                 self.data = CSVHandler.loadCSVFile(filename)
-                self.original_data = self.data.copy()
-                self.modifications_applied = False
-                self.updateRevertMenuState()
 
                 if self.data is not None and not self.data.empty:
+                    self.original_data = self.data.copy()
+                    self.modifications_applied = False
+                    self.updateRevertMenuState()
+
                     plate_column = next((col for col in self.data.columns if col.lower() == 'plate'), None)
                     if plate_column:
                         self.data[plate_column].fillna('Unknown', inplace=True)
@@ -427,6 +429,7 @@ class UiMainWindow(object):
                             break
 
                     checkbox.setVisible(bool(match))
+
     def restoreScrollArea(self):
         """
         Restore the scroll area to show all checkboxes.
